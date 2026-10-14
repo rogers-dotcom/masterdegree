@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Examen Modelo — Módulo 2</title>
+<style>
+:root {
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --text-secondary: #5a5a58;
+  --border: #e2e0da;
+  --accent: #185fa5;
+  --accent-bg: #e6f1fb;
+  --success: #3b6d11;
+  --success-bg: #eaf3de;
+  --danger: #a32d2d;
+  --danger-bg: #fcebeb;
+  --radius: 10px;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17171a; --card: #232326; --text: #eeeeec; --text-secondary: #a8a8a4;
+    --border: #37373a; --accent: #7fb2e8; --accent-bg: #1c3550;
+    --success: #97c459; --success-bg: #1c2b10; --danger: #f09595; --danger-bg: #3a1414;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17171a; --card: #232326; --text: #eeeeec; --text-secondary: #a8a8a4;
+  --border: #37373a; --accent: #7fb2e8; --accent-bg: #1c3550;
+  --success: #97c459; --success-bg: #1c2b10; --danger: #f09595; --danger-bg: #3a1414;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; min-height: 100%; }
+.wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 56px; }
+h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 6px; }
+.banner {
+  background: var(--accent-bg); color: var(--accent); border-radius: var(--radius);
+  padding: 10px 14px; font-size: 13px; margin: 14px 0 18px; display: flex; gap: 8px; align-items: center;
+}
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 14px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 18px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--card); color: var(--text); font-size: 15px; font-weight: 500; cursor: pointer; width: 100%;
+}
+.btn:hover { background: var(--accent-bg); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.92; background: var(--accent); }
+.btn-row { display: flex; gap: 10px; }
+.q-num { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+.q-text { font-size: 16px; font-weight: 500; line-height: 1.5; margin: 0 0 16px; }
+.option {
+  display: block; width: 100%; text-align: left; padding: 12px 14px; margin-bottom: 9px;
+  border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--card);
+  color: var(--text); font-size: 14.5px; cursor: pointer; line-height: 1.4;
+}
+.option:hover { border-color: var(--accent); }
+.option.selected { border-color: var(--accent); background: var(--accent-bg); font-weight: 500; }
+.option.correct { background: var(--success-bg); border-color: var(--success); color: var(--success); font-weight: 500; }
+.option.incorrect { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); font-weight: 500; }
+.option.disabled { cursor: default; }
+.progress-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin: 16px 0; }
+.progress-dot {
+  aspect-ratio: 1; border-radius: 6px; border: 1px solid var(--border); background: var(--card);
+  display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-secondary); cursor: pointer;
+}
+.progress-dot.answered { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.progress-dot.current { outline: 2px solid var(--accent); }
+.score-big { font-size: 44px; font-weight: 600; text-align: center; margin: 10px 0; }
+.score-sub { text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
+.pass-badge { text-align: center; font-size: 14px; font-weight: 600; padding: 8px; border-radius: var(--radius); margin-bottom: 18px; }
+.pass-badge.pass { background: var(--success-bg); color: var(--success); }
+.pass-badge.fail { background: var(--danger-bg); color: var(--danger); }
+.review-item { border-bottom: 1px solid var(--border); padding: 14px 0; }
+.review-item:last-child { border-bottom: none; }
+.review-q { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.review-tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-right: 6px; }
+.tag-ok { background: var(--success-bg); color: var(--success); }
+.tag-bad { background: var(--danger-bg); color: var(--danger); }
+.hidden { display: none !important; }
+.nav-row { display: flex; gap: 10px; margin-top: 4px; }
+.timer { font-size: 13px; color: var(--text-secondary); }
+.meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="screen-intro">
+    <h1>Examen Modelo — Módulo 2</h1>
+    <p class="subtitle">Planificación Financiera y Tecnología de Control de Gestión</p>
+    <div class="banner">🧮 Puedes usar Excel o calculadora financiera. Duración: 60 minutos.</div>
+    <div class="card">
+      <p style="margin:0 0 10px; line-height:1.6;">20 preguntas tipo test con 4 opciones (una correcta), en 60 minutos, como el examen oficial. Cada correcta suma 0,50 puntos; las incorrectas no restan y las no contestadas tampoco, así que conviene responder todas.</p>
+      <p style="margin:0 0 10px; line-height:1.6; color:var(--text-secondary); font-size:13.5px;">A diferencia del simulador de práctica, aquí no verás si acertaste hasta terminar las 20 preguntas — igual que en el examen real. Puedes moverte entre preguntas y cambiar tus respuestas antes de entregar.</p>
+      <button class="btn btn-primary" id="start-btn">Empezar examen</button>
+    </div>
+  </div>
+
+  <div id="screen-exam" class="hidden">
+    <div class="meta-row">
+      <span style="font-size:13px; color:var(--text-secondary);" id="q-counter"></span>
+      <span class="timer"><span id="answered-counter"></span> · ⏱ <b id="clock">60:00</b></span>
+    </div>
+    <div class="progress-grid" id="progress-grid"></div>
+    <div class="card">
+      <div class="q-num" id="q-num-label"></div>
+      <p class="q-text" id="q-text"></p>
+      <div id="options"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn" id="prev-btn">Anterior</button>
+      <button class="btn btn-primary" id="next-btn">Siguiente</button>
+    </div>
+    <div style="margin-top:14px;">
+      <button class="btn" id="submit-btn">Entregar examen</button>
+    </div>
+  </div>
+
+  <div id="screen-result" class="hidden">
+    <h1>Resultado</h1>
+    <div class="card">
+      <div class="score-big" id="score-big"></div>
+      <div class="score-sub" id="score-sub"></div>
+      <div class="pass-badge" id="pass-badge"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="review-btn">Ver repaso</button>
+      <button class="btn btn-primary" id="retry-btn">Nuevo intento</button>
+    </div>
+  </div>
+
+  <div id="screen-review" class="hidden">
+    <h1>Repaso del examen</h1>
+    <div class="card" id="review-list"></div>
+    <button class="btn btn-primary" id="back-to-result-btn">Volver al resultado</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [{"unit": 1, "type": "calculo", "q": "Un pagare a 6 meses ofrece una tasa anual del 8%. ¿Que interes efectivo corresponde al periodo?", "options": ["8%", "4%", "2%", "16%"], "correct": 1, "exp": "Interes simple: i_periodo = i_anual x t/12 = 8% x 6/12 = 4%."}, {"unit": 1, "type": "calculo", "q": "Un documento a 18 meses paga una tasa anual del 6%, capitalizando compuesto. ¿Cual es el exponente (t) a aplicar sobre (1+i)?", "options": ["18", "1,5", "0,5", "6"], "correct": 1, "exp": "t = plazo a calcular / plazo de la tasa publicada = 18 meses / 12 meses = 1,5."}, {"unit": 1, "type": "teoria", "q": "Un pagare de empresa se emite normalmente:", "options": ["Al valor nominal, cobrando intereses aparte", "Al descuento: se paga menos del nominal y al vencimiento se cobra el nominal", "Con el interes ya pagado en efectivo por adelantado al comprador", "A un precio superior al nominal"], "correct": 1, "exp": "Los pagares se emiten al descuento: el inversor desembolsa menos del valor nominal y al vencimiento recibe el nominal completo; la diferencia es el interes."}, {"unit": 2, "type": "calculo", "q": "El presupuesto operativo del caso de clase preve ingresos por ventas de 344.100 EUR y costes de materia prima de 106.560 EUR en el Año 1. ¿Cual es la utilidad bruta?", "options": ["237.540 EUR", "450.660 EUR", "106.560 EUR", "344.100 EUR"], "correct": 0, "exp": "Utilidad bruta = Ingresos - Costes de ventas = 344.100 - 106.560 = 237.540 EUR."}, {"unit": 2, "type": "calculo", "q": "Con una utilidad bruta de 237.540 EUR y gastos operativos (alquiler 36.000 + personal 84.000 + suministros 14.400 + marketing 4.800 = 139.200 EUR), ¿cual es la utilidad operativa (EBITDA)?", "options": ["98.340 EUR", "139.200 EUR", "376.740 EUR", "237.540 EUR"], "correct": 0, "exp": "EBITDA = Utilidad bruta - gastos operativos = 237.540 - 139.200 = 98.340 EUR."}, {"unit": 2, "type": "teoria", "q": "En el presupuesto de tesoreria (cash flow proyectado), las cifras que se registran son:", "options": ["Lo devengado, igual que en el estado de resultados", "Lo realmente cobrado y pagado en cada periodo", "Solo las ventas, sin los pagos", "Los saldos finales de balance"], "correct": 1, "exp": "El cash flow proyectado registra los flujos reales de caja (cobros y pagos), a diferencia del estado de resultados que usa el criterio de devengo."}, {"unit": 2, "type": "teoria", "q": "Si una empresa da financiacion a sus clientes a 30 dias, ¿que ocurre con las ventas del ultimo mes del ejercicio en el balance previsional?", "options": ["Se registran integramente como caja cobrada", "La parte no cobrada aun queda como saldo de deudores/clientes en el activo", "Desaparecen del balance", "Se convierten automaticamente en perdida"], "correct": 1, "exp": "La parte de ventas del periodo que aun no se ha cobrado por el plazo de financiacion queda reflejada como cuenta de clientes/deudores en el activo corriente."}, {"unit": 3, "type": "calculo", "q": "Un proyecto requiere una inversion inicial de 600.000 EUR y genera flujos de 75.000, 90.000, 105.000 y 750.000 en los años 1 a 4, descontados a un coste de capital de 7,96%. Si el VAN resultante es 182,22 (positivo), esto indica que:", "options": ["El proyecto no es viable financieramente", "El proyecto cubre la inversion inicial, cubre el coste del capital y ademas deja un remanente positivo", "Hay que rechazar el proyecto porque el VAN deberia ser cero", "La TIR es exactamente 7,96%"], "correct": 1, "exp": "Un VAN positivo, por pequeño que sea, indica que el proyecto cubre inversion + coste de capital y genera un excedente adicional: es viable desde el punto de vista financiero."}, {"unit": 3, "type": "teoria", "q": "Si el VAN de un proyecto es mayor que cero, esto significa que:", "options": ["El proyecto no cubre ni siquiera la inversion inicial", "El proyecto genera valor por encima del coste de financiarlo, tras recuperar la inversion", "El proyecto tiene una TIR igual a cero", "Es obligatorio rechazar el proyecto"], "correct": 1, "exp": "VAN > 0 indica que, tras descontar todos los flujos a la tasa exigida y restar la inversion inicial, queda un remanente positivo: el proyecto crea valor."}, {"unit": 3, "type": "teoria", "q": "La TIR (Tasa Interna de Retorno) se define como:", "options": ["La tasa de descuento que hace que el VAN sea igual a cero", "El tipo de interes que cobra el banco por el prestamo", "La tasa de inflacion esperada del proyecto", "El promedio aritmetico de los flujos de caja"], "correct": 0, "exp": "La TIR es la tasa de descuento para la cual el VAN del proyecto se hace exactamente cero."}, {"unit": 3, "type": "teoria", "q": "El Flujo Generado por las Operaciones (FGO) se calcula, entre otras cosas, sumando de nuevo las amortizaciones porque:", "options": ["Las amortizaciones aumentan el impuesto a pagar", "Las amortizaciones son un gasto contable que reduce el impuesto pero no representa una salida real de dinero", "Las amortizaciones deben pagarse en efectivo al final del proyecto", "No es correcto sumar las amortizaciones nunca"], "correct": 1, "exp": "Las amortizaciones reducen la base imponible (menor impuesto) pero no son una salida de caja, por eso se suman de nuevo despues de calcular el impuesto."}, {"unit": 4, "type": "calculo", "q": "Una empresa se financia con 60% de fondos propios (rentabilidad exigida 10%) y 40% de deuda (coste 7%), con un Impuesto sobre Sociedades del 30%. ¿Cual es el WACC aproximado?", "options": ["8,5%", "7,96%", "10%", "17%"], "correct": 1, "exp": "WACC = 0,6x0,10 + 0,4x0,07x(1-0,30) = 0,06 + 0,0196 = 0,0796 = 7,96%."}, {"unit": 4, "type": "calculo", "q": "Si el flujo de caja libre estabilizado del año 5 en adelante es de 50.000 EUR anuales y el WACC es del 10%, ¿cual es el valor residual en el año 5?", "options": ["500.000 EUR", "50.000 EUR", "5.000 EUR", "550.000 EUR"], "correct": 0, "exp": "Valor residual = FCF / WACC = 50.000 / 0,10 = 500.000 EUR (formula de renta perpetua)."}, {"unit": 4, "type": "calculo", "q": "Segun el modelo CAPM, si la tasa libre de riesgo es 3%, la prima de riesgo de mercado es 6% y la beta apalancada del negocio es 1,4, la rentabilidad exigida por los accionistas (Re) es:", "options": ["9%", "11,4%", "6%", "8,4%"], "correct": 1, "exp": "CAPM: Re = Rf + beta x PR = 0,03 + 1,4 x 0,06 = 0,114 = 11,4%."}, {"unit": 4, "type": "calculo", "q": "Si el enunciado dice que la deuda de una empresa es el doble de sus recursos propios (D/E = 2), ¿que porcentaje del total de recursos representan los recursos propios (E)?", "options": ["50%", "66,7%", "33,3%", "25%"], "correct": 2, "exp": "Si D = 2E, el total (D+E) se reparte en 3 partes iguales: E representa 1/3 = 33,3% del total y D representa 2/3 = 66,7%."}, {"unit": 4, "type": "teoria", "q": "Segun Kaplan y Norton, el Cuadro de Mando Integral organiza los indicadores de una empresa en cuantas perspectivas, y cuales son:", "options": ["3: financiera, clientes y procesos", "4: financiera, clientes, procesos internos, y aprendizaje/crecimiento", "5: incluyendo tambien la perspectiva ambiental por separado", "2: financiera y no financiera"], "correct": 1, "exp": "El modelo clasico de Kaplan y Norton usa 4 perspectivas: financiera, clientes, procesos internos, y aprendizaje y crecimiento (formacion/desarrollo)."}, {"unit": 4, "type": "teoria", "q": "¿Cual de las siguientes NO es una caracteristica deseable de un buen indicador (KPI), segun lo visto en clase?", "options": ["Que sea dinamico y se actualice en el tiempo", "Que sea representativo de la estrategia", "Que sea lo mas costoso posible de obtener, para asegurar precision", "Que tenga una referencia u objetivo con el que compararse"], "correct": 2, "exp": "Un buen indicador debe ser simple y de bajo coste de obtener; si el coste de conseguir la informacion supera el valor que aporta, no compensa usarlo."}, {"unit": 4, "type": "teoria", "q": "Los criterios ASG/ESG (ambiental, social y de gobernanza) en el CMI se suelen incorporar:", "options": ["Creando una quinta perspectiva separada obligatoriamente", "Como indicadores adicionales dentro de cada una de las 4 perspectivas ya existentes", "Solo en la perspectiva financiera", "Nunca se combinan con el CMI tradicional"], "correct": 1, "exp": "La corriente que predomino fue anadir indicadores ASG dentro de cada una de las 4 perspectivas existentes, en vez de crear perspectivas nuevas separadas."}, {"unit": 6, "type": "teoria", "q": "¿Cuál de las siguientes NO es una de las cinco fuerzas de Porter?", "options": ["Poder de negociación de los proveedores", "Poder de negociación de los clientes", "Existencia de productos sustitutivos", "Nivel de inflación del país"], "correct": 3, "exp": "Las cinco fuerzas son: poder de proveedores, poder de clientes, competidores actuales, entrada de nuevos competidores y productos sustitutivos. La inflación sería un factor económico del PESTEL."}, {"unit": 6, "type": "teoria", "q": "¿Cuál es el orden correcto de las fases del ciclo de vida de la industria?", "options": ["Crecimiento, start-up, madurez, shake-out, declive", "Start-up, shake-out, crecimiento, madurez, declive", "Start-up, crecimiento, shake-out, madurez, declive", "Start-up, crecimiento, madurez, shake-out, declive"], "correct": 2, "exp": "Start-up → Crecimiento → Shake-out → Madurez → Declive."}];
+
+let order = [];
+let answers = {};
+let current = 0;
+
+function el(id) { return document.getElementById(id); }
+function show(id) {
+  ["screen-intro","screen-exam","screen-result","screen-review"].forEach(s => {
+    el(s).classList.toggle("hidden", s !== id);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+el("start-btn").onclick = () => {
+  order = QUESTIONS.map((_, i) => i); // keep fixed order matching real-exam style
+  answers = {};
+  current = 0;
+  submitArmed = false;
+  el("submit-btn").textContent = "Entregar examen";
+  show("screen-exam");
+  renderProgressGrid();
+  renderQuestion();
+  startTimer();
+};
+
+function renderProgressGrid() {
+  const grid = el("progress-grid");
+  grid.innerHTML = "";
+  order.forEach((qi, idx) => {
+    const dot = document.createElement("div");
+    dot.className = "progress-dot" + (answers[qi] !== undefined ? " answered" : "") + (idx === current ? " current" : "");
+    dot.textContent = idx + 1;
+    dot.onclick = () => { current = idx; renderProgressGrid(); renderQuestion(); };
+    grid.appendChild(dot);
+  });
+  const answeredCount = Object.keys(answers).length;
+  el("answered-counter").textContent = answeredCount + " / " + QUESTIONS.length + " respondidas";
+}
+
+function renderQuestion() {
+  const qi = order[current];
+  const q = QUESTIONS[qi];
+  el("q-counter").textContent = "Pregunta " + (current + 1) + " de " + QUESTIONS.length;
+  el("q-num-label").textContent = "Pregunta " + (current + 1);
+  el("q-text").textContent = q.q;
+
+  const optsWrap = el("options");
+  optsWrap.innerHTML = "";
+  q.options.forEach((opt, i) => {
+    const b = document.createElement("button");
+    b.className = "option" + (answers[qi] === i ? " selected" : "");
+    b.textContent = opt;
+    b.onclick = () => {
+      answers[qi] = i;
+      renderProgressGrid();
+      renderQuestion();
+    };
+    optsWrap.appendChild(b);
+  });
+
+  el("prev-btn").disabled = current === 0;
+  el("prev-btn").style.opacity = current === 0 ? 0.5 : 1;
+}
+
+el("prev-btn").onclick = () => {
+  if (current > 0) { current--; renderProgressGrid(); renderQuestion(); window.scrollTo(0,0); }
+};
+el("next-btn").onclick = () => {
+  if (current < order.length - 1) { current++; renderProgressGrid(); renderQuestion(); window.scrollTo(0,0); }
+};
+
+el("submit-btn").onclick = () => {
+  const missing = QUESTIONS.length - Object.keys(answers).length;
+  if (missing > 0 && !submitArmed) {
+    submitArmed = true;
+    el("submit-btn").textContent = "Te faltan " + missing + " sin responder (no restan). Pulsa de nuevo para entregar";
+    return;
+  }
+  finishExam();
+};
+
+let lastResults = [];
+let timerId = null;
+let remaining = 3600;
+let submitArmed = false;
+
+function fmt(s) { const m = Math.floor(s/60), r = s%60; return String(m).padStart(2,"0") + ":" + String(r).padStart(2,"0"); }
+function startTimer() {
+  remaining = 3600;
+  el("clock").textContent = fmt(remaining);
+  if (timerId) clearInterval(timerId);
+  timerId = setInterval(() => {
+    remaining--;
+    el("clock").textContent = fmt(Math.max(remaining,0));
+    if (remaining <= 0) { clearInterval(timerId); timerId = null; finishExam(); }
+  }, 1000);
+}
+
+function finishExam() {
+  if (timerId) { clearInterval(timerId); timerId = null; }
+  lastResults = QUESTIONS.map((q, qi) => {
+    const chosen = answers[qi];
+    return { q: q, chosen: chosen, correct: chosen === q.correct };
+  });
+  const correctCount = lastResults.filter(r => r.correct).length;
+  const total = QUESTIONS.length;
+  const pct = Math.round((correctCount / total) * 100);
+  const grade10 = (correctCount * 0.5).toFixed(2);
+
+  show("screen-result");
+  el("score-big").textContent = correctCount + " / " + total;
+  el("score-sub").textContent = correctCount + " × 0,50 = " + grade10 + " / 10";
+
+  const badge = el("pass-badge");
+  if (correctCount * 0.5 >= 4.5) {
+    badge.className = "pass-badge pass";
+    badge.textContent = "✓ Por encima del mínimo de 4,5/10 exigido en el examen real";
+  } else {
+    badge.className = "pass-badge fail";
+    badge.textContent = "Por debajo del 4,5/10 mínimo exigido — conviene repasar antes del examen real";
+  }
+}
+
+el("review-btn").onclick = () => {
+  show("screen-review");
+  const list = el("review-list");
+  list.innerHTML = "";
+  lastResults.forEach((r, idx) => {
+    const item = document.createElement("div");
+    item.className = "review-item";
+    const tagClass = r.correct ? "tag-ok" : "tag-bad";
+    const tagText = r.correct ? "Correcta" : (r.chosen === undefined ? "Sin responder" : "Incorrecta");
+    const chosenText = r.chosen === undefined ? "(no respondida)" : r.q.options[r.chosen];
+    item.innerHTML =
+      "<div class='review-q'>" + (idx+1) + ". " + r.q.q + "</div>" +
+      "<div style='margin-bottom:6px;'><span class='review-tag " + tagClass + "'>" + tagText + "</span></div>" +
+      "<div style='font-size:13px; color:var(--text-secondary);'>Tu respuesta: " + chosenText + "</div>" +
+      (r.correct ? "" : "<div style='font-size:13px; color:var(--success);'>Correcta: " + r.q.options[r.q.correct] + "</div>") +
+      "<div style='font-size:13px; margin-top:6px;'>" + r.q.exp + "</div>";
+    list.appendChild(item);
+  });
+};
+
+el("back-to-result-btn").onclick = () => show("screen-result");
+
+el("retry-btn").onclick = () => {
+  show("screen-intro");
+};
+
+show("screen-intro");
+</script>
+</body>
+</html>

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Módulo 2 — Cuaderno de Estudio y Simulador de Examen</title>
+<style>
+:root {
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --text-secondary: #5a5a58;
+  --border: #e2e0da;
+  --accent: #185fa5;
+  --accent-bg: #e6f1fb;
+  --success: #3b6d11;
+  --success-bg: #eaf3de;
+  --danger: #a32d2d;
+  --danger-bg: #fcebeb;
+  --radius: 10px;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17171a;
+    --card: #232326;
+    --text: #eeeeec;
+    --text-secondary: #a8a8a4;
+    --border: #37373a;
+    --accent: #7fb2e8;
+    --accent-bg: #1c3550;
+    --success: #97c459;
+    --success-bg: #1c2b10;
+    --danger: #f09595;
+    --danger-bg: #3a1414;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17171a;
+  --card: #232326;
+  --text: #eeeeec;
+  --text-secondary: #a8a8a4;
+  --border: #37373a;
+  --accent: #7fb2e8;
+  --accent-bg: #1c3550;
+  --success: #97c459;
+  --success-bg: #1c2b10;
+  --danger: #f09595;
+  --danger-bg: #3a1414;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100%;
+}
+
+/* ---------- Top tab bar ---------- */
+.tabbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 0 12px;
+}
+.tab-btn {
+  flex: 1;
+  text-align: center;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  border-radius: 8px 8px 0 0;
+}
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom: 3px solid var(--accent);
+  background: var(--accent-bg);
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ---------- Guide styling ---------- */
+#panel-guide h1 { font-size: 22px; font-weight: 600; margin: 4px 0 18px; }
+#panel-guide h2 { font-size: 19px; font-weight: 600; margin: 34px 0 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+#panel-guide h2:first-of-type { border-top: none; padding-top: 0; }
+#panel-guide h3 { font-size: 16px; font-weight: 600; margin: 22px 0 10px; color: var(--accent); }
+#panel-guide p { line-height: 1.6; margin: 10px 0; }
+#panel-guide ul, #panel-guide ol { line-height: 1.6; padding-left: 22px; }
+#panel-guide li { margin: 6px 0; }
+#panel-guide strong { font-weight: 600; }
+#panel-guide em { color: var(--text-secondary); }
+#panel-guide table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 13.5px;
+}
+#panel-guide th, #panel-guide td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+#panel-guide th {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+#panel-guide table { display: block; overflow-x: auto; }
+#panel-guide .table-scroll {
+  overflow-x: auto;
+  margin: 14px 0;
+}
+#panel-guide pre {
+  background: var(--accent-bg);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+#panel-guide code {
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 13px;
+  color: var(--accent);
+}
+#panel-guide p code, #panel-guide li code {
+  background: var(--accent-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ---------- Quiz styling (reused) ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+.btn:hover { background: var(--accent-bg); }
+.btn-primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.92; background: var(--accent); }
+.btn-row { display: flex; gap: 10px; }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--card);
+  color: var(--text-secondary);
+}
+.chip.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+.progress-bar { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 18px; }
+.progress-fill { height: 100%; background: var(--accent); transition: width 0.25s; }
+.meta-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+.q-text { font-size: 17px; font-weight: 500; line-height: 1.5; margin: 0 0 18px; }
+.option {
+  display: block; width: 100%; text-align: left; padding: 13px 14px; margin-bottom: 10px;
+  border-radius: var(--radius); border: 1px solid var(--border); background: var(--card);
+  color: var(--text); font-size: 15px; cursor: pointer; line-height: 1.4;
+}
+.option:hover { border-color: var(--accent); }
+.option.correct { background: var(--success-bg); border-color: var(--success); color: var(--success); font-weight: 500; }
+.option.incorrect { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); font-weight: 500; }
+.option.disabled { cursor: default; }
+.exp-box { margin-top: 14px; padding: 12px 14px; background: var(--accent-bg); border-radius: var(--radius); font-size: 14px; color: var(--text); line-height: 1.5; }
+.exp-label { font-weight: 600; color: var(--accent); margin-bottom: 4px; display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
+.score-big { font-size: 44px; font-weight: 600; text-align: center; margin: 10px 0; }
+.score-sub { text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+.review-item { border-bottom: 1px solid var(--border); padding: 14px 0; }
+.review-item:last-child { border-bottom: none; }
+.review-q { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.review-tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-right: 6px; }
+.tag-unit { background: var(--accent-bg); color: var(--accent); }
+.tag-ok { background: var(--success-bg); color: var(--success); }
+.tag-bad { background: var(--danger-bg); color: var(--danger); }
+.hidden { display: none !important; }
+.err { color: var(--danger); font-size: 13px; margin-top: 8px; }
+#panel-quiz h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 20px; }
+
+#panel-calc h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.ex-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.ex-title { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+.ex-q { font-size: 15px; line-height: 1.5; margin: 0 0 12px; }
+.ex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ex-input { flex: 1; min-width: 120px; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; }
+.ex-unit { font-size: 14px; color: var(--text-secondary); }
+.ex-btn { padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; cursor: pointer; }
+.ex-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ex-fb { margin-top: 10px; font-size: 14px; padding: 8px 12px; border-radius: var(--radius); }
+.ex-fb.ok { background: var(--success-bg); color: var(--success); }
+.ex-fb.bad { background: var(--danger-bg); color: var(--danger); }
+.ex-sol { margin-top: 10px; padding: 12px 14px; background: var(--accent-bg); border-radius: var(--radius); font-size: 14px; line-height: 1.55; }
+.ex-sol code { font-family: Consolas, monospace; font-size: 13px; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="tabbar">
+  <button class="tab-btn active" id="tabbtn-guide" onclick="showTab('guide')">Cuaderno</button>
+  <button class="tab-btn" id="tabbtn-quiz" onclick="showTab('quiz')">Simulador</button>
+  <button class="tab-btn" id="tabbtn-calc" onclick="showTab('calc')">Cálculos</button>
+</div>
+
+<div class="wrap">
+
+  <div id="panel-guide" class="tab-panel active">
+<h1>Cuaderno de Estudio — Planificación Financiera y Tecnología de Control de Gestión (Módulo 2)</h1>
+<h2>Contexto de la asignatura</h2>
+<ul>
+<li><strong>Asignatura:</strong> Planificación Financiera y Tecnología de Control de Gestión</li>
+<li><strong>Profesor:</strong> Marcos Hugo Antinao Fernández</li>
+<li><strong>Material base de este cuaderno:</strong> transcripciones de 10 clases + las diapositivas (carpeta de Drive) + dos entregas ya calificadas: <strong>Presupuesto Integral</strong> y <strong>Cuadro de Mando Integral (CMI)</strong></li>
+<li><strong>Formato del examen (según lo dicho en clase):</strong> preguntas de opción múltiple (3-4 alternativas), mezcla de teoría y cálculo numérico (te dan varios resultados posibles y hay que identificar el correcto — conviene llevar calculadora)</li>
+</ul>
+<h3>Las 6 unidades reales del temario (según la guía de aprendizaje)</h3>
+<table>
+<thead>
+<tr>
+<th>Unidad oficial</th>
+<th>Título</th>
+<th>Temas</th>
+<th>¿Cubierta en las 10 clases?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unidad 1</td>
+<td>Dirección y planificación estratégica</td>
+<td>Introducción, proceso de dirección estratégica, herramientas de planificación estratégica, caso Iberia</td>
+<td><strong>Parcial en clase</strong> — la primera clase (misión, visión, objetivos, estrategia, documentos previsionales, CMI, proceso de dirección y PESTEL) está incluida; las demás herramientas (Porter, etc.) solo se mencionan. Los 4 temas del manual también están incluidos</td>
+</tr>
+<tr>
+<td>Unidad 2</td>
+<td>Planificación financiera a corto plazo</td>
+<td>Introducción CP, enfoques CP, plataformas de crowdlending, factoring/crowdfactoring</td>
+<td>Sí — Clase 2 (matemática financiera, pagarés, punto de equilibrio, fondo de maniobra, caso práctico de presupuesto a corto plazo)</td>
+</tr>
+<tr>
+<td>Unidad 3</td>
+<td>Planificación financiera a largo plazo</td>
+<td>Introducción LP, enfoques LP, simulación de Montecarlo, modelos financieros</td>
+<td>Sí — Clases 3, 4 y 5 (VAN, TIR, escenarios, riesgos, Monte Carlo)</td>
+</tr>
+<tr>
+<td>Unidad 4</td>
+<td>Presupuestos</td>
+<td>Introducción, presupuesto operacional, de inversiones, de tesorería</td>
+<td>Sí — Clase 6 (flujos de fondos, financiación, caso de inversión)</td>
+</tr>
+<tr>
+<td>Unidad 5</td>
+<td>Control de gestión I</td>
+<td>Introducción, características y principios, herramientas de gestión, caso emprendimientos/pymes</td>
+<td>Sí — Clases 7 y 8 (indicadores/CMI, características de un buen KPI, ratios financieros, WACC/CAPM)</td>
+</tr>
+<tr>
+<td>Unidad 6</td>
+<td>Control de gestión II</td>
+<td>Introducción, medición de resultados (KPIs), toma de decisiones, casos de éxito PyMEs</td>
+<td>Parcial — Clases 7-8 cubren medición de resultados (KPIs por perspectiva, con ejemplos reales de marketing digital); no se llegó a "toma de decisiones" ni a casos de éxito PyMEs como tema propio</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Importante:</strong> las secciones "Unidad 1 a 4" de más abajo son <em>bloques temáticos de estudio</em> armados a partir de lo que se dijo en clase; no coinciden con la numeración oficial de la tabla de arriba. De la Unidad 1 oficial están los 4 temas, resumidos en sus propias secciones desde el manual.</p>
+<h3>El caso integrador</h3>
+<p>Todo el módulo gira en torno a un mismo proyecto (un local de comida/delivery) que se resuelve progresivamente en cada unidad:</p>
+<table>
+<thead>
+<tr>
+<th>Dato del proyecto</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Precio de venta promedio</td>
+<td>15,50 €/menú</td>
+</tr>
+<tr>
+<td>Volumen mensual base</td>
+<td>1.850 menús</td>
+</tr>
+<tr>
+<td>Coste unitario materia prima (food cost)</td>
+<td>4,80 €</td>
+</tr>
+<tr>
+<td>Alquiler comercial</td>
+<td>3.000 €/mes</td>
+</tr>
+<tr>
+<td>Gastos de personal</td>
+<td>7.000 €/mes</td>
+</tr>
+<tr>
+<td>Suministros básicos</td>
+<td>1.200 €/mes</td>
+</tr>
+<tr>
+<td>Marketing y publicidad</td>
+<td>400 €/mes</td>
+</tr>
+<tr>
+<td>Inversión inicial (CAPEX)</td>
+<td>37.000 € (maquinaria 15.000 + mobiliario/reforma 12.000 + fianzas/licencias 7.500 + tecnología/POS 2.500)</td>
+</tr>
+<tr>
+<td>WACC (tasa de descuento)</td>
+<td>9,375%</td>
+</tr>
+<tr>
+<td>VAN del proyecto</td>
+<td>160.997,74 €</td>
+</tr>
+<tr>
+<td>TIR</td>
+<td>191,6%</td>
+</tr>
+<tr>
+<td>Payback</td>
+<td>6,94 meses (\~7 meses)</td>
+</tr>
+</tbody>
+</table>
+<p>Este mismo proyecto reaparece en la Unidad 2 (presupuesto), Unidad 3 (evaluación VAN/TIR) y Unidad 4 (CMI), así que entenderlo bien de punta a punta cubre buena parte del examen.</p>
+<h2>Estructura del examen y ponderación (guía de aprendizaje oficial 2025-2026)</h2>
+<h3>Sistema de evaluación completo (peso sobre la nota final)</h3>
+<table>
+<thead>
+<tr>
+<th>Actividad</th>
+<th>Unidad</th>
+<th>Descripción</th>
+<th>Peso</th>
+<th>Entrega</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Actividad 1</td>
+<td>Unidad 2</td>
+<td>Infografía: comparativa de financiación a corto plazo (tradicional vs. crowdlending/crowdfactoring/crowdfunding)</td>
+<td>5%</td>
+<td>Semana 5</td>
+</tr>
+<tr>
+<td>Actividad 2</td>
+<td>Unidad 3</td>
+<td>Simulaciones de Montecarlo en Excel (mínimo 6 riesgos, mínimo 6 simulaciones)</td>
+<td>10%</td>
+<td>Semana 7</td>
+</tr>
+<tr>
+<td>Actividad 3</td>
+<td>Unidad 4</td>
+<td>Caso práctico I: Presupuesto integral (operativo + inversiones + cashflow) para un restaurante nuevo, en grupo</td>
+<td>10%</td>
+<td>Semana 12</td>
+</tr>
+<tr>
+<td>Actividad 4</td>
+<td>Unidad 5</td>
+<td>Caso práctico II: Cuadro de Mando Integral, en grupo (10% informe escrito + 5% exposición oral)</td>
+<td>15%</td>
+<td>Semana 16</td>
+</tr>
+<tr>
+<td>Actividad 5</td>
+<td>—</td>
+<td><strong>Prueba de Conocimiento (examen final)</strong></td>
+<td><strong>60%</strong></td>
+<td>Semana 17-18</td>
+</tr>
+</tbody>
+</table>
+<p><em>El cronograma puede sufrir modificaciones por razones logísticas; cualquier cambio se notifica al estudiante.</em></p>
+<h3>Cómo se aprueba</h3>
+<ul>
+<li><strong>Nota final:</strong> la guía de aprendizaje dice ≥ 5,0/10 (media ponderada), pero el comunicado del examen dice que hay que alcanzar un 4,5 sobre 10 en la calificación final de la asignatura. Las dos cifras no coinciden — conviene confirmar con los tutores cuál aplica.</li>
+<li>Además, <strong>imprescindible sacar ≥ 4,5 en la Prueba de Conocimiento</strong> para que esta pueda promediar con el resto de actividades — si sacas menos de 4,5 en el examen, no importa cuánto saques en las actividades, no aprueba.</li>
+<li>Mismo criterio aplica en convocatoria extraordinaria; ahí solo se re-entregan las actividades no superadas (tras las correcciones del docente) o las que no se entregaron.</li>
+</ul>
+<h3>Formato del examen (comunicado oficial del profesor + lo dicho en clase)</h3>
+<ul>
+<li>Opción múltiple, sin preguntas de desarrollo.</li>
+<li>Mezcla de teoría y cálculo (resultados numéricos entre varias opciones — conviene llevar calculadora).</li>
+<li>Cubre <strong>todas las unidades del temario</strong>, no solo las últimas vistas en clase.</li>
+<li><strong>Duración: 60 minutos.</strong> El día y la hora los anuncia oficialmente el equipo de tutores.</li>
+<li><strong>20 preguntas tipo test (10 puntos)</strong>, con 4 opciones de respuesta de las que solo una es correcta.</li>
+<li><strong>Puntuación: cada correcta suma 0,50 puntos; las incorrectas NO restan; las no contestadas ni suman ni restan.</strong> Como el error no penaliza, conviene no dejar ninguna pregunta en blanco.</li>
+<li>Con 20 preguntas a 0,50, sacar el mínimo de 4,5/10 equivale a acertar <strong>9 preguntas</strong>.</li>
+<li><strong>Calculadora</strong>: hace falta una calculadora financiera (o Excel/tabla de Excel) para VAN, TIR, etc. — una calculadora científica normal <strong>no</strong> sirve para eso, según aclaró el profesor.</li>
+<li>El examen es único (mismo examen para todos, sea cual sea la modalidad — presencial o virtual — según el país).</li>
+</ul>
+<h3>Consejo directo del profesor para repasar (dicho en la última clase)</h3>
+<blockquote>
+<p>"Échenle un repaso a las 5 fuerzas de Porter... y al cuadro de mando, las 4 perspectivas."</p>
+</blockquote>
+<p>Esto lo dijo explícitamente como lo último que recordó antes de cerrar el repaso — son, en sus palabras, los dos temas que más vale la pena revisar aparte de todo lo ya visto en clase. Las 5 fuerzas de Porter (Unidad 1) <strong>no se explicaron en ninguna clase</strong>, así que las incluí en este cuaderno a partir del material del manual (ver sección "Herramientas para la planificación estratégica" más abajo).</p>
+<h3>Qué priorizar si te falta tiempo</h3>
+<p>El profesor <strong>no confirmó</strong> ninguna pregunta concreta; en la última clase dijo que no quería decir que fueran a preguntar eso exacto, sino que se revisaran los temas. Estos son los puntos que más insistió en repasar, en orden de pista:</p>
+<ol>
+<li><strong>Modalidades de financiación</strong> (convencionales y alternativas), pensando en casos: "te plantean un ejemplo y te piden cuál es el tipo de financiación más adecuado".</li>
+<li><strong>Valor actual y valor futuro de un capital</strong>, cómo se calcula.</li>
+<li><strong>VAN y TIR</strong>: te pueden dar 4 resultados y hay que elegir el correcto.</li>
+<li><strong>Las 5 fuerzas de Porter.</strong></li>
+<li><strong>El cuadro de mando integral y sus 4 perspectivas.</strong></li>
+<li><strong>Fondo de maniobra y ciclo de caja</strong> (el repaso final los trató; no dijo que fueran a caer).</li>
+</ol>
+<p>En el simulador, el modo "Prioritarias" reúne las preguntas de estos seis temas. El resto del banco sirve para repasar con calma.</p>
+
+<h3>Rúbricas de las actividades entregables (resumen)</h3>
+<p>Cada actividad grupal/individual (1 a 4) se corrige con una rúbrica de 4 niveles (No realizado/inadecuado → Poco adecuado → Adecuado → Muy adecuado), evaluando por ejemplo:</p>
+<ul>
+<li><strong>Actividad 1:</strong> identificación de 5 empresas por sector/tamaño (5%), contexto de cada modalidad de financiación (35%), comparativa ventajas/desventajas (30%), diagrama de flujo (30%).</li>
+<li><strong>Actividad 2:</strong> tabla inicial de datos (5%), al menos 6 riesgos identificados (35%), consolidación de datos (30%), al menos 6 simulaciones realizadas (30%).</li>
+<li><strong>Actividad 3:</strong> redacción clara, estructura del proceso, presupuesto completo con evidencias de cálculo, uso de la memoria de la empresa/información interna.</li>
+<li><strong>Actividad 4:</strong> además de los criterios anteriores, incluye una rúbrica de <strong>presentación oral</strong> (estructura y formato, dominio del contenido, comunicación verbal/no verbal).</li>
+</ul>
+<h3>Reglamento de plagio y uso de IA (aplica a las actividades entregables, no al examen)</h3>
+<ul>
+<li>El plagio se considera falta muy grave y conlleva pérdida de la convocatoria correspondiente, además de quedar reflejado en el expediente académico.</li>
+<li>El uso de herramientas de IA <strong>debe estar autorizado explícitamente por el docente en cada actividad</strong>; el estudiante debe declarar su uso y es responsable de verificar la información que la IA proporcione. La decisión final sobre la autoría del trabajo recae en el docente.</li>
+</ul>
+<h2>Unidad 1 — Matemática financiera aplicada</h2>
+<h3>Valor actual vs. valor futuro</h3>
+<p>Un mismo capital vale distinto según el momento: el <strong>valor futuro (VF)</strong> es el valor actual (VA) más los intereses generados durante el tiempo. La diferencia entre ambos siempre es el interés, que depende de la tasa y del tiempo transcurrido.</p>
+<h3>Interés simple (documentos a corto plazo, ≤ 1 año)</h3>
+<p>Se usa para pagarés, letras y documentos de vencimiento menor a un año. La tasa publicada suele ser anual, así que hay que prorratearla al plazo real:</p>
+<pre><code class="language-latex">i_{periodo} = i_{anual} \times \frac{t}{12}
+</code></pre>
+<p>donde <em>t</em> es el número de meses del plazo. Ejemplo: una tasa anual del 5% para un documento a 6 meses da un interés efectivo del 2,5% (5% × 6/12).</p>
+<h3>Interés compuesto (documentos a más de 1 año)</h3>
+<p>Cuando el plazo supera el año, ya no se multiplica la tasa por el tiempo: se <strong>eleva</strong> el factor (1+i) a una potencia:</p>
+<pre><code class="language-latex">VF = VA \times (1+i)^{t}
+</code></pre>
+<p>donde el exponente <em>t</em> se calcula igual que antes: el plazo que se quiere calcular dividido entre el plazo al que está publicada la tasa (por ejemplo, para 18 meses con tasa anual: t = 18/12 = 1,5).</p>
+<h3>Pagarés de empresa</h3>
+<ul>
+<li>Son <strong>títulos de deuda a corto plazo</strong> (normalmente ≤ 12 meses) que emiten empresas para financiarse, como alternativa a un préstamo bancario o una póliza de crédito.</li>
+<li>Se emiten <strong>al descuento</strong>: el inversor desembolsa hoy menos del valor nominal, y al vencimiento recibe el nominal completo (la diferencia es el interés cobrado por adelantado).</li>
+<li>Empresas poco conocidas o con dificultades suelen tener que ofrecer tasas más altas para atraer inversores (más riesgo percibido = mayor coste de financiación) — regla mnemotécnica del profesor: <em>"nadie da duros por pesetas"</em> (nadie regala rentabilidad sin motivo).</li>
+<li>Se valoran con interés simple si el plazo es ≤ 1 año, con interés compuesto si es mayor.</li>
+</ul>
+<h2>Unidad 2 — Presupuesto integral</h2>
+<p>El presupuesto integral encadena varios sub-presupuestos hasta llegar a los estados financieros previsionales. Orden de construcción:</p>
+<ol>
+<li><strong>Presupuesto operativo</strong> — parte de los supuestos base (precio de venta, volumen, coste unitario, gastos fijos) y llega hasta la utilidad operativa (EBITDA):</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Año 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(+) Ingresos por ventas</td>
+<td>Precio × volumen</td>
+</tr>
+<tr>
+<td>(-) Coste de ventas (materia prima)</td>
+<td>Coste unitario × volumen</td>
+</tr>
+<tr>
+<td>(=) Utilidad bruta</td>
+<td></td>
+</tr>
+<tr>
+<td>(-) Alquiler, personal, suministros, marketing</td>
+<td>gastos fijos anuales</td>
+</tr>
+<tr>
+<td>(=) Utilidad operativa (EBITDA)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Presupuesto de inversiones (CAPEX)</strong> — el desembolso inicial en Año 0: maquinaria, mobiliario/reforma, fianzas/licencias, tecnología. Se usa para calcular la <strong>depreciación anual</strong> de cada activo fijo (coste ÷ vida útil).</li>
+<li>
+<p><strong>Presupuesto de tesorería / flujo de fondos proyectado (cash flow)</strong> — a diferencia del presupuesto operativo (que registra lo <em>devengado</em>), este registra lo que realmente <strong>se cobra y se paga</strong>, trimestre a trimestre:</p>
+</li>
+<li>
+<p>Parte de un saldo de caja inicial.</p>
+</li>
+<li>Suma cobranzas reales (ventas menos lo aplazado a clientes, según el plazo de financiación pactado).</li>
+<li>Resta pagos reales por compras (menos lo aplazado a proveedores).</li>
+<li>Resta pagos por activo fijo, dividendos, devolución de préstamos e intereses pagados.</li>
+<li>El saldo final de cada trimestre es el inicial del siguiente.</li>
+<li>
+<p>Punto clave: <strong>lo devengado ≠ lo cobrado/pagado</strong>. Por ejemplo, si se da 30-45 días de financiación a clientes/proveedores, una parte de las ventas o compras del último trimestre queda pendiente de cobro/pago y aparece como deudores/proveedores en el balance, no en la caja.</p>
+</li>
+<li>
+<p><strong>Estado de resultados previsional</strong> — usa el criterio de <strong>devengo</strong> (todo lo vendido/comprado/gastado en el periodo, se haya cobrado/pagado o no). Ojo: los intereses y gastos aquí son los <em>devengados</em> en el ejercicio, que pueden ser distintos de los <em>pagados</em> en el cash flow (parte puede quedar para el ejercicio siguiente).</p>
+</li>
+<li><strong>Balance previsional</strong> — se construye combinando: saldo final de caja (del cash flow), deudores/proveedores pendientes (la parte no cobrada/pagada), bienes de uso netos de depreciación acumulada, capital social (incluyendo dividendos en acciones pendientes de pago, que aumentan el capital social) y utilidades acumuladas + utilidad del ejercicio (que viene del estado de resultados previsional).</li>
+</ol>
+<h3>Puntos que suelen generar dudas</h3>
+<ul>
+<li><strong>Dividendo en acciones</strong>: no es un aporte de capital de los socios; es un incremento del capital social que se paga entregando acciones en vez de efectivo.</li>
+<li>El presupuesto integral es iterativo: el balance previsional "cierra" solo si se toman correctamente las cifras del cash flow (saldo de caja) y del estado de resultados (utilidad del ejercicio).</li>
+</ul>
+<h3>Modalidades de financiación a corto plazo (convencionales)</h3>
+<table>
+<thead>
+<tr>
+<th>Modalidad</th>
+<th>Cómo funciona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Póliza de crédito</td>
+<td>Como una tarjeta de crédito: el banco autoriza un límite (cuenta con saldo disponible); solo se pagan intereses sobre el saldo <strong>dispuesto</strong> (usado), no sobre el límite total. Pensada para necesidades de liquidez a corto plazo.</td>
+</tr>
+<tr>
+<td>Préstamo</td>
+<td>Cuotas fijas a un plazo determinado; debe usarse para gastos coherentes con ese plazo (nunca financiar un gasto corriente — como un mes de alquiler — a varios años, ni una inversión a largo plazo con financiación a corto).</td>
+</tr>
+<tr>
+<td>Descuento comercial</td>
+<td>El banco adelanta el importe de un <strong>pagaré</strong> que el cliente entregó como pago aplazado: descuenta el valor futuro (nominal) a valor presente y se queda con el documento hasta el vencimiento.</td>
+</tr>
+<tr>
+<td>Factoring</td>
+<td>Igual que el descuento comercial, pero con <strong>facturas</strong> en vez de pagarés: se cede la cartera de clientes al banco a cambio de cobro anticipado (con descuento). Puede ser: <strong>con recurso</strong> (si el cliente no paga, el banco te reclama a ti — más barato) o <strong>sin recurso</strong> (el banco asume el riesgo de impago — más caro).</td>
+</tr>
+<tr>
+<td>Confirming</td>
+<td>Al revés que el factoring: aquí el banco <strong>paga a tus proveedores</strong> por anticipado (ellos cobran antes), y tú sigues pagando al banco en el plazo pactado original. Lo ofrece el banco del cliente, no el del proveedor.</td>
+</tr>
+<tr>
+<td>Línea de crédito comercial</td>
+<td>Financiación directa entre proveedor y cliente, sin banco de por medio — los proveedores suelen ser la mayor fuente de financiación de una empresa.</td>
+</tr>
+<tr>
+<td>Anticipo de exportación/importación (forfaiting)</td>
+<td>El banco anticipa cobros o pagos en operaciones de comercio exterior (divisas extranjeras), en cualquiera de los dos sentidos (a favor del exportador o del importador).</td>
+</tr>
+<tr>
+<td>Pagarés de empresa</td>
+<td>Títulos de deuda a corto plazo (mercado de renta fija) que emiten grandes empresas para financiarse; se emiten al descuento, igual que las Letras del Tesoro (que serían el equivalente público a corto plazo).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Renta fija pública vs. privada</strong>: pública = emitida por el Estado (ej. Letras del Tesoro); privada = emitida por una empresa (ej. un bono a 5 años de Telefónica). <strong>Corto vs. largo plazo</strong>: un pagaré (corto) vs. un bono (largo) — la diferencia de fondo es el plazo de la emisión, no quién la emite.</p>
+<h3>Modalidades de financiación alternativas a corto plazo</h3>
+<ul>
+<li><strong>Crowdlending</strong>: plataforma online donde varios inversores particulares financian un proyecto ya evaluado por analistas de riesgo de la plataforma.</li>
+<li><strong>Crowdfactoring</strong>: como el factoring, pero el adelanto de las facturas lo hace un grupo de inversores a través de una plataforma, no un banco.</li>
+<li><strong>RBS (revenue-based financing)</strong>: los inversores adelantan fondos a cambio de un % fijo de los ingresos futuros — no hay plazo de devolución fijo, se paga a medida que se factura.</li>
+<li><strong>Marketplace lending (B2B)</strong>: empresas con exceso de liquidez financian a otras empresas que necesitan financiación, vía plataforma.</li>
+</ul>
+<h2>Unidad 3 — Evaluación de proyectos de inversión y riesgo</h2>
+<h3>VAN (Valor Actual Neto) y TIR (Tasa Interna de Retorno)</h3>
+<ul>
+<li><strong>VAN</strong>: se traen todos los flujos futuros del proyecto al momento cero (descontados a una tasa) y se les resta la inversión inicial. Si VAN &gt; 0, el proyecto genera valor por encima del coste de financiarlo → se acepta.</li>
+<li><strong>TIR</strong>: es la tasa de descuento que hace que el VAN sea exactamente cero. Si la TIR es mayor que la tasa exigida (el WACC, ver Unidad 4), el proyecto es viable.</li>
+<li>Herramientas previas al análisis numérico: <strong>DAFO</strong> (debilidades, amenazas, fortalezas, oportunidades) y su complemento, el análisis <strong>CAME</strong> (corregir, afrontar, mantener, explotar) — el DAFO identifica, el CAME propone qué hacer con cada punto.</li>
+</ul>
+<h3>Los distintos flujos de fondos de un proyecto</h3>
+<table>
+<thead>
+<tr>
+<th>Flujo</th>
+<th>Qué mide</th>
+<th>Cómo se obtiene</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flujo generado por las operaciones (FGO)</td>
+<td>Caja que genera el negocio en sí</td>
+<td>Resultado de explotación − impuesto + amortizaciones (se suman de vuelta porque no son salida real de dinero)</td>
+</tr>
+<tr>
+<td>Flujo libre de fondos (Free Cash Flow)</td>
+<td>Caja disponible antes de financiación</td>
+<td>FGO ± variación de activo fijo y fondo de maniobra</td>
+</tr>
+<tr>
+<td>Flujo de la deuda</td>
+<td>Lo que entra/sale por el préstamo</td>
+<td>(+) Importe recibido del banco; (−) cuota de capital + intereses cada año</td>
+</tr>
+<tr>
+<td>Flujo disponible para accionistas</td>
+<td>Lo que queda para los socios</td>
+<td>Flujo libre + flujo de la deuda (incluyendo el ahorro fiscal de los intereses)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Escudo fiscal (ahorro fiscal de los intereses):</strong> los intereses de la financiación bancaria son deducibles del Impuesto sobre Sociedades, así que el coste "real" de la deuda es menor al tipo nominal — el interés que se paga se reduce parcialmente por el ahorro de impuestos que genera.</p>
+<p><strong>Recuperación de la inversión (payback simple):</strong> se calcula acumulando los flujos año a año hasta cubrir la inversión inicial; el año en que el acumulado pasa a ser positivo es el año de recuperación.</p>
+<h3>Riesgo del proyecto: simulación de Monte Carlo</h3>
+<ul>
+<li>Se usa cuando el VAN depende de variables inciertas (precio, volumen, costes) y se quiere ver un rango de resultados posibles, no un único número.</li>
+<li>Mecánica: se generan cientos/miles de escenarios aleatorios (función ALEATORIO en Excel) variando los inputs inciertos, se recalcula el VAN en cada uno, y se analiza la distribución resultante (media, mínimo, máximo, histograma).</li>
+<li>Del histograma se puede leer, por ejemplo, la probabilidad de que el VAN sea negativo (área acumulada por debajo de cero) — es una lectura de riesgo, no solo de rentabilidad esperada.</li>
+</ul>
+<h3>Ciclo de caja y fondo de maniobra (contexto de liquidez del proyecto)</h3>
+<ul>
+<li><strong>Fondo de maniobra</strong> = activo corriente − pasivo corriente. Si es positivo, parte del ciclo de explotación está financiado con recursos propios/beneficios retenidos.</li>
+<li><strong>Periodo medio de cobro / pago</strong>: cuanto más corto el plazo de cobro y más largo el de pago, menos necesidad de financiación externa (el negocio "vive" más del dinero de sus clientes y proveedores).</li>
+<li>El tramo del ciclo que el fondo de maniobra no alcanza a cubrir necesita financiación a corto plazo (p. ej. póliza de crédito).</li>
+<li><strong>Excepción importante</strong>: un fondo de maniobra negativo no siempre es malo. Ejemplo clásico: los <strong>supermercados</strong> — cobran al contado (o casi) a sus clientes, pero sus proveedores les financian a 30-60 días. Por pura matemática del ciclo, el pasivo corriente supera al activo corriente sin que eso sea un problema de liquidez.</li>
+</ul>
+<h2>Riesgos, seguros y análisis de escenarios (clase 3)</h2>
+
+<h3>Familias de riesgos y cómo se cubren</h3>
+<p>El profesor las presentó como las grandes familias de riesgos de una empresa o proyecto. Para mitigar un riesgo lo primero que se suele pensar es en un <strong>seguro</strong> adecuado a ese riesgo.</p>
+<table>
+<thead><tr><th>Familia</th><th>Qué es</th><th>Ejemplos de seguro o de caso</th></tr></thead>
+<tbody>
+<tr><td><strong>Patrimoniales</strong></td><td>Sus consecuencias negativas las soportan los bienes o derechos de las personas (el patrimonio).</td><td>Seguros agrícolas, de pérdidas pecuniarias, de caución (típico en constructoras al empezar una obra), de crédito, de ingeniería, de transporte y multirriesgo (el de hogar).</td></tr>
+<tr><td><strong>Responsabilidad civil</strong></td><td>Una persona causa, directa o indirectamente, un perjuicio a bienes de terceros por una conducta negligente o culposa.</td><td>Seguro de coche a terceros, RC inmobiliaria, RC profesional (médicos y profesionales que pueden dañar a clientes).</td></tr>
+<tr><td><strong>Consecuenciales</strong></td><td>Daño indirecto que se ocasiona por un siniestro previo (daño directo).</td><td>Dos coches chocan: el daño directo es el vehículo; el consecuencial es el <strong>lucro cesante</strong> del taxista mientras está en el taller.</td></tr>
+<tr><td><strong>Personales</strong></td><td>Relacionados con la vida y la salud de las personas.</td><td>Seguros de vida, accidentes y salud.</td></tr>
+<tr><td><strong>Financieros</strong></td><td>Riesgo de crédito, de mercado, de liquidez y estructural y de capital.</td><td>Riesgo de mercado: tipos de interés, spread crediticio, tipo de cambio, renta variable, materias primas, inflación, volatilidad. El profesor dijo que no hace falta aprender cada uno, solo hacerse una idea.</td></tr>
+<tr><td><strong>Operacionales y de proceso</strong></td><td>Los procesos u operaciones de la empresa fallan (desperfectos, robo, impericia de los trabajadores).</td><td>Fallo del proceso productivo.</td></tr>
+<tr><td><strong>Reputacional</strong></td><td>La percepción de la institución se vuelve negativa ante el público.</td><td>Escándalo de emisiones de Volkswagen: multa millonaria, dimisión del presidente y pérdida de imagen.</td></tr>
+<tr><td><strong>Laborales</strong></td><td>Riesgos de la actividad laboral.</td><td>Incendios, contactos eléctricos, caídas, y también el desplazamiento de ida y vuelta al trabajo.</td></tr>
+</tbody></table>
+<p>La información que genera la empresa sirve para detectar estos riesgos.</p>
+
+<h3>Riesgo país y prima de riesgo</h3>
+<ul>
+<li>Dentro del riesgo de crédito, el <strong>riesgo país</strong> indica cuánto riesgo se asume al invertir en un país concreto. Se compone de: <strong>soberano</strong> (capacidad de pago del Estado, p. ej. si no puede devolver sus bonos), <strong>de transferencia</strong> (las empresas del país no consiguen divisas para pagar deuda externa), <strong>entorno macroeconómico</strong> (factores exógenos como el petróleo o la inflación) y <strong>regulatorio</strong> (cambios de normativa o expropiaciones).</li>
+<li>Se cuantifica con la <strong>prima de riesgo</strong> = rentabilidad del bono a 10 años del país − rentabilidad del bono a 10 años del país "libre de riesgo". En Europa el de referencia ha sido <strong>Alemania</strong>; en América, <strong>Estados Unidos</strong>. Ejemplo: España 3% − Alemania 1% = <strong>2%</strong>. Cuanta más diferencia, más riesgo país.</li>
+<li><strong>Relación rentabilidad-riesgo</strong>: quien asume más riesgo espera un premio mayor, por eso los bonos de países más arriesgados rinden más que los del país libre de riesgo.</li>
+<li>Las agencias de calificación (rating crediticio) también miden este riesgo.</li>
+</ul>
+
+<h3>Pruebas de estrés y análisis de escenarios</h3>
+<ul>
+<li><strong>Estresar un proyecto</strong>: probar tasas de descuento (el mínimo es 0 y el máximo es la <strong>TIR</strong>, donde el VAN es 0 o "VAN neutro"; por encima de la TIR deja de ser rentable), hasta cuánto puede subir la inversión inicial, o cuánto se puede perder en un periodo.</li>
+<li><strong>Escenarios</strong>: se plantean tres, <strong>optimista</strong>, <strong>más probable o realista</strong> y <strong>pesimista</strong>, y a cada uno se le asigna una probabilidad. Ejemplo de clase: 15% optimista, 70% más probable y 15% pesimista. En el pesimista la inversión es mayor (105.000 frente a 100.000) y los flujos menores.</li>
+<li><strong>VAN esperado</strong> = suma de (VAN de cada escenario × su probabilidad). En el ejemplo, el VAN al 10% del optimista era 64.643,46 y el del pesimista salía negativo (ahí el proyecto dejaría de ser viable). Ejemplo numérico: VAN de 60.000 (15%), 30.000 (70%) y −20.000 (15%) → 9.000 + 21.000 − 3.000 = <strong>27.000</strong>. En Excel: <code>=SUMAPRODUCTO(VANs;probabilidades)</code> (función estándar, no mostrada en clase).</li>
+<li><strong>La TIR no se pondera.</strong> No vale multiplicar la TIR de cada escenario por su probabilidad. Hay que construir un <strong>flujo global</strong> ponderando cada flujo (incluida la inversión) por la probabilidad de su escenario (ej.: −100.000×15% −100.000×70% −105.000×15%) y calcular la TIR de ese flujo.</li>
+</ul>
+
+<h2>Unidad 4 — Cuadro de Mando Integral, ratios financieros y WACC</h2>
+<h3>Indicadores (KPI): características que debería reunir uno bueno</h3>
+<p>Simple / bajo coste de obtener, dinámico (se actualiza con el tiempo), enfocado a una de las 4 perspectivas, eficiente (muestra desviaciones y retrasos), representativo de la estrategia, decisorio (permite tomar decisiones), con una referencia u objetivo de comparación, revisable y con una periodicidad definida.</p>
+<h3>Las 4 perspectivas del Cuadro de Mando Integral (Kaplan y Norton)</h3>
+<table>
+<thead>
+<tr>
+<th>Perspectiva</th>
+<th>Qué mide</th>
+<th>Ejemplos de KPI vistos en clase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Financiera</td>
+<td>Rentabilidad, estructura de capital</td>
+<td>Ratios de rentabilidad/liquidez/solvencia, presupuesto de ventas, rentabilidad por cliente</td>
+</tr>
+<tr>
+<td>Cliente</td>
+<td>Satisfacción y relación con el mercado</td>
+<td>Ticket medio, NPS, tasa de conversión, quejas/reseñas</td>
+</tr>
+<tr>
+<td>Procesos internos</td>
+<td>Eficiencia operativa</td>
+<td>Rotación de inventario, cumplimiento normativo, ratios de liquidez/endeudamiento</td>
+</tr>
+<tr>
+<td>Aprendizaje y crecimiento</td>
+<td>Capital humano y desarrollo</td>
+<td>Vacantes cubiertas por promoción interna, horas de formación por empleado, ideas/sugerencias del personal</td>
+</tr>
+</tbody>
+</table>
+<p>Recomendación de los autores: <strong>~5 indicadores por perspectiva</strong>, con algo más de peso en procesos internos. Cada vez es más común añadir indicadores de criterios <strong>ASG/ESG</strong> (ambiental, social, gobernanza) dentro de cada una de las 4 perspectivas (por ejemplo: % de puestos directivos ocupados por mujeres, rotación de stock de productos responsables).</p>
+<h3>Ejemplos de KPI por perspectiva (caso real de clase: campaña de marketing digital)</h3>
+<p><strong>Perspectiva de cliente</strong> — ejemplo de una campaña de Google Ads para un negocio de importación de coches de Alemania:
+- Impresiones (veces que se vio el anuncio): ~2.975.000
+- Clics: 9.362 → <strong>CTR (click-through rate) = clics / impresiones = 0,31%</strong>
+- Coste total de la campaña: 940,75 € (coste por clic acumulado)
+- Clics de llamada (conversión a contacto telefónico): 384
+- Indicadores de Google Analytics: % de visitantes nuevos (92%), duración media de la visita (18,77 segundos), páginas vistas por sesión (1,17) — todos estos son indicadores para comparar contra un objetivo, no valores buenos o malos en sí mismos.
+- Otros ejemplos de KPI de cliente: % de clientes que repiten compra, % de aceptación de nuevas promociones, número de reclamaciones (en España, hay que informar de las reclamaciones bancarias al Banco de España — es un indicador regulado), tráfico al sitio web, venta media por cliente.</p>
+<p><strong>Perspectiva de procesos internos</strong> — ejemplos:
+- % de productos defectuosos (ej. 1% aceptable vs. 40% señal de alarma)
+- Tiempo medio de fabricación
+- Emisiones de CO2 directas (indicador ASG típico de esta perspectiva)</p>
+<h3>Ratios financieros (perspectiva financiera)</h3>
+<p><strong>Rentabilidad</strong></p>
+<ul>
+<li>ROI = Beneficio / Inversión</li>
+<li>ROA (rentabilidad económica) = BAIT (beneficio antes de intereses e impuestos) / Activo total</li>
+<li>ROE (rentabilidad financiera) = Resultado del ejercicio / Patrimonio neto</li>
+</ul>
+<p><strong>Liquidez</strong> (de más a menos estricto)</p>
+<ul>
+<li>Liquidez general = Activo corriente / Pasivo corriente</li>
+<li>Test ácido = (Clientes + inversiones financieras + tesorería) / Pasivo corriente (excluye existencias)</li>
+<li>Ratio de caja = Tesorería / Pasivo corriente</li>
+</ul>
+<p><strong>Solvencia</strong></p>
+<ul>
+<li>Ratio de firmeza/consistencia = Activo no corriente / Exigible a largo plazo</li>
+<li>Ratio de garantía = Activo real / Exigible total (activo real excluye intangibles como marca o fondo de comercio, que pierden valor si la empresa liquida)</li>
+</ul>
+<p><strong>Endeudamiento</strong></p>
+<ul>
+<li>Endeudamiento general = Exigible / Pasivo total</li>
+<li>Coeficiente de endeudamiento = Exigible / Patrimonio neto</li>
+<li>Endeudamiento a corto / largo plazo = deuda financiera a corto (o largo) / deuda financiera total</li>
+<li>Coste de la deuda = Gastos financieros / Deuda con coste</li>
+<li>Cobertura de gastos financieros = BAIT / Gastos financieros</li>
+</ul>
+<h3>WACC (coste promedio ponderado del capital)</h3>
+<p>Es la tasa que se usa para descontar los flujos futuros de un proyecto (la misma idea que el VAN de la Unidad 3, pero explicando de dónde sale la tasa de descuento):</p>
+<pre><code class="language-latex">WACC = \frac{E}{E+D}\times R_e + \frac{D}{E+D}\times R_d \times (1 - t)
+</code></pre>
+<p>donde E = fondos propios, D = deuda, Re = rentabilidad exigida por los accionistas, Rd = coste de la deuda, t = tipo del Impuesto sobre Sociedades. El coste de la deuda se multiplica por (1 − t) por el escudo fiscal de los intereses (Unidad 3).</p>
+<p><em>Ejemplo de clase (caso Alameda):</em> 60% fondos propios al 10%, 40% deuda al 7%, impuesto 30% → WACC = 0,6×0,10 + 0,4×0,07×0,70 = <strong>7,96%</strong>.</p>
+<h3>Coste del capital propio por CAPM (cuando no te dan Re directamente)</h3>
+<p>En vez de poner el 10% "a dedo", se puede calcular con el modelo CAPM:</p>
+<pre><code class="language-latex">R_e = R_f + \beta \times PR
+</code></pre>
+<p>donde Rf = tasa libre de riesgo (ej. bono alemán, referencia "sin riesgo"), β = beta apalancada (riesgo del negocio frente al mercado) y PR = prima de riesgo del mercado.</p>
+<p><em>Ejemplo de clase:</em> Rf = 3%, PR = 6%, β = 1,4 → Re = 0,03 + 1,4×0,06 = <strong>11,4%</strong>.</p>
+<h3>Cuando el WACC se da por una relación de endeudamiento (no por % directos)</h3>
+<p>Si el enunciado da la relación deuda/recursos propios (ej. "la deuda es el doble de los recursos propios" → D/E = 2) en vez de los pesos directos:</p>
+<ol>
+<li>Recursos propios + deuda = 100% del total.</li>
+<li>Si D = 2×E, entonces el total se reparte en 3 partes iguales: E = 1/3 (33,3%) y D = 2/3 (66,7%).</li>
+<li>Con esos pesos, más Re (por CAPM o dado) y Rd (coste de la deuda del banco), se aplica la fórmula del WACC de siempre.</li>
+</ol>
+<p><em>Ejemplo de clase:</em> con Re = 11,4% (CAPM anterior), Rd = 8%, impuesto = 30%, D/E = 2 → WACC = 0,333×0,114 + 0,667×0,08×0,70 = <strong>7,53%</strong>.</p>
+<h3>Valoración de un proyecto por descuento de flujos (free cash flow)</h3>
+<ol>
+<li>Se separan las partidas que no son del negocio ordinario (ingresos extraordinarios, venta de activos no operativos).</li>
+<li>Se proyecta el estado de resultados a un horizonte limitado (habitualmente 5 años).</li>
+<li>Si el negocio tiene vida indefinida, todo lo que ocurre después del año 5 se resume en un <strong>valor residual</strong> (renta perpetua de los flujos desde el año 6 en adelante), calculado como:</li>
+</ol>
+<pre><code class="language-latex">VR_5 = \frac{FCF}{WACC}
+</code></pre>
+<ol>
+<li>El valor residual (que "vive" en el año 5) se descuenta al momento cero junto con los flujos de los años 1 a 5, todos a la tasa WACC.</li>
+<li><strong>Para llegar al valor final del negocio</strong> (no solo el valor de sus flujos futuros): al resultado del punto 4 se le <strong>suma</strong> el valor de mercado de los activos no afectos al negocio (ej. un inmueble que no se usa en la actividad diaria) y se le <strong>resta</strong> la deuda a largo plazo. <em>"Lo que tengo menos lo que debo"</em> — la fórmula que resume todo el método, según el profesor.</li>
+</ol>
+<h2>Introducción y proceso de dirección estratégica (Unidad 1 oficial, Temas 1 y 2)</h2>
+<p><em>Esta sección sale del material del manual (no de las clases).</em></p>
+
+<h3>Tema 1 — Introducción: misión, visión, objetivos y planificación financiera</h3>
+<table>
+<thead><tr><th>Concepto</th><th>Qué es</th></tr></thead>
+<tbody>
+<tr><td><strong>Misión</strong></td><td>Razón de ser de la organización: para qué propósito fue creada.</td></tr>
+<tr><td><strong>Visión</strong></td><td>A dónde quisiera llegar. Es una proyección a largo plazo y debe ser una aspiración ambiciosa.</td></tr>
+<tr><td><strong>Metas / objetivos</strong></td><td>Trasladan y cuantifican a corto y medio plazo los elementos que permiten alcanzar la visión.</td></tr>
+<tr><td><strong>KPI</strong></td><td><em>Key Performance Indicators</em>: los indicadores principales asociados a la consecución de cada objetivo. Hay KPI de corto y de largo plazo.</td></tr>
+</tbody></table>
+<ul>
+<li><strong>Escenarios</strong>: se planean tres tipos — realista o neutro, optimista o positivo, y pesimista o negativo — y, en muchos casos, planes de contingencia para un entorno cambiante.</li>
+<li><strong>Horizontes</strong>: el corto plazo es siempre de <strong>12 meses</strong> en todas las entidades (da más realismo). El largo plazo depende de la industria y la incertidumbre: algunas organizaciones lo miran a 5-7 años y otras solo a 3.</li>
+<li>Los objetivos se fijan en términos <strong>cualitativos y cuantitativos</strong>; la planificación financiera aporta la parte cuantitativa con más precisión.</li>
+<li><strong>Para qué sirve la planificación financiera dentro de la dirección estratégica</strong>: cuantifica cada estrategia posible (recursos, impacto económico-financiero a corto, medio y largo plazo) para (1) decidir entre estrategias y (2) hacer seguimiento de la elegida. Incluye medir variables no estrictamente económicas, como el impacto en la reputación o la imagen de marca, y permite conocer las necesidades de financiación e inversión.</li>
+<li><strong>Objetivos financieros</strong>: en general buscan aumentar los ingresos y mejorar los márgenes, para reinvertir en la empresa o repartir dividendos. A corto plazo se basan en el flujo de caja proyectado a 12 meses. Deben estar alineados entre corto y largo plazo: un enfoque demasiado cortoplacista puede dañar los objetivos de medio y largo plazo. Han de ser <strong>SMART</strong> (específicos, medibles, alcanzables, realistas y con horizonte temporal definido).</li>
+</ul>
+
+<h3>Documentos previsionales</h3>
+<ul>
+<li>Sirven para prever los ingresos y gastos de cada estrategia, saber cuándo y por qué líneas de negocio entrarán ingresos y equilibrar financiación interna y externa (préstamos, emisión de bonos, subvenciones, etc.).</li>
+<li>Incluyen: <strong>flujo de caja</strong> (entradas y salidas de dinero efectivas), <strong>cuenta de resultados previsional</strong> (ingresos y gastos esperados) y <strong>balance previsional</strong> al final de cada año (activos, pasivos y patrimonio neto). Algunas organizaciones añaden un <strong>estado de origen y aplicación de fondos</strong>.</li>
+<li>Se proyectan a corto plazo (un año) y a largo plazo (más de un año). Conceptos de la cuenta de resultados del manual: importe neto de la cifra de negocio, variación de existencias de productos terminados y en curso, trabajos realizados por la empresa para su activo, aprovisionamientos, otros ingresos de explotación, gastos de personal, otros gastos de explotación y amortización del inmovilizado.</li>
+</ul>
+
+<h3>Cuadro de mando integral (Kaplan y Norton, 1992)</h3>
+<ul>
+<li>Sistema de control visual con aspectos financieros y no financieros. Nació porque valorar solo lo financiero no da una visión global y puede limitar la planificación estratégica.</li>
+<li>Las <strong>4 perspectivas</strong> y la pregunta que responde cada una:</li>
+</ul>
+<table>
+<thead><tr><th>Perspectiva</th><th>Pregunta clave</th><th>Tipo de resultado</th></tr></thead>
+<tbody>
+<tr><td>Financiera</td><td>¿Qué objetivos financieros debemos alcanzar para maximizar el valor de nuestros inversores?</td><td>Externo</td></tr>
+<tr><td>Cliente</td><td>¿Qué necesidades del cliente debemos satisfacer para alcanzar nuestros objetivos?</td><td>Externo</td></tr>
+<tr><td>Procesos internos</td><td>¿En qué procesos debemos ser excelentes para satisfacer a clientes y accionistas?</td><td>Interno</td></tr>
+<tr><td>Aprendizaje y crecimiento</td><td>¿Con qué infraestructuras y recursos contamos y cómo ser excelentes para aprender a innovar y crecer?</td><td>Interno</td></tr>
+</tbody></table>
+<ul>
+<li><strong>Tipos de cuadro de mando</strong>: <strong>financiero</strong> (solo variables financieras; útil a corto plazo pero hay que complementarlo), <strong>operativo</strong> (variables del proceso productivo y del vínculo con proveedores) y <strong>estratégico</strong> (las cuatro áreas, con KPI SMART). El estratégico es el más adecuado para la planificación estratégica integral y para entornos turbulentos.</li>
+<li>La tabla básica de un CMI tiene las columnas: <strong>perspectiva, KPI, deadline, descripción, objetivo y valor actual</strong>.</li>
+<li>Herramientas: <strong>Microsoft Excel</strong> (tabla, elementos visuales y actualización periódica con macros) y software especializado como <strong>BSC Designer Pro</strong>.</li>
+</ul>
+
+<h3>Tema 2 — Proceso de dirección estratégica</h3>
+<ul>
+<li><strong>Objetivo</strong>: prever los cambios del entorno para planificar las estrategias que permitan adaptarse, asegurando la continuidad de las operaciones y el cumplimiento de la misión y la visión (mitigando los efectos negativos y potenciando los positivos).</li>
+<li><strong>Es un ciclo que se retroalimenta</strong> e involucra a todas las áreas funcionales (finanzas, marketing, recursos humanos, operaciones, I+D, legal...). Fases en orden:</li>
+</ul>
+<ol>
+<li>Misión y visión</li>
+<li>Determinación de objetivos</li>
+<li>Análisis estratégico (interno y externo; identificación de oportunidades)</li>
+<li>Planificación estratégica (incluye la selección de la estrategia)</li>
+<li>Implementación de la estrategia</li>
+<li>Monitoreo y control</li>
+<li>Identificación de elementos que entren en conflicto con la estrategia, y vuelta a la misión y visión</li>
+</ol>
+<ul>
+<li><strong>Análisis estratégico</strong>: estudia el entorno <strong>general</strong> (factores que afectan a todas las organizaciones de ese contexto geográfico) y el <strong>específico</strong> (elementos con impacto directo en las entidades de una misma industria o actividad económica). Herramientas: PESTEL para el general; cinco fuerzas de Porter, ciclo de vida de la industria y matriz General Electric para el específico.</li>
+<li><strong>Planificación estratégica</strong>: distingue lo que supone un impacto negativo (<strong>amenaza</strong>) de lo que supone uno positivo (<strong>oportunidad</strong>); hace el análisis interno de recursos y capacidades (<strong>fortalezas y debilidades</strong>) y los combina en el DAFO/FODA; estudia la viabilidad de las alternativas. El aspecto financiero cuantifica cada plan para decidir con una previsión del impacto.</li>
+<li><strong>Presupuestación</strong>: técnica de gestión que valora cuantitativamente las necesidades de inversión de cada decisión, permite elegir entre estrategias (recursos y costes de cada una) y anticipa ingresos, gastos y posibles deficiencias. Se enmarca <strong>al inicio de la planificación estratégica, después del análisis estratégico</strong>. Es clave a corto plazo porque una estrategia suele exigir un gasto alto al inicio y dar beneficio a medio-largo plazo; por eso permite detectar necesidades de financiación a corto plazo y evitar un flujo de caja negativo que perjudique la implementación.</li>
+<li>La presupuestación solo incluye elementos financieros, pero aporta mucho valor; hay que complementarla con una planificación financiera integral porque es una proyección con muchos elementos imponderables. El área financiera es la que permite ejecutar la estrategia de forma integral (fondos disponibles, necesidades de financiación, medios como préstamos o subvenciones). Sin visión financiera se toman decisiones aleatorias y puede haber falta de liquidez, incluso bancarrota. El <strong>presupuesto integral</strong> debe aprobarse con prioridad al inicio de la implementación.</li>
+<li><strong>Implementación</strong>: una vez elegida la estrategia, con recursos y presupuesto aprobados, se definen los recursos, las personas, los plazos de cada meta intermedia y la financiación aprobada por fase; se comunica con todos los grupos de interés y se planifican los procesos de control.</li>
+<li><strong>Monitoreo y control de gestión</strong>: mecanismos para medir el grado de implementación y los resultados parciales, con indicadores clave de los objetivos parciales. Se desarrolla en paralelo a la implementación. Si hay desviaciones, se analizan los motivos para rectificar. <strong>Si la desviación se debe a cambios en el entorno, hay que volver al análisis estratégico y rediseñar la estrategia</strong> (incluso cambiándola por completo), reevaluando misión, visión y entorno.</li>
+</ul>
+<h2>La primera clase del curso: misión, objetivos, estrategia y cuadro de mando (clase 10)</h2>
+<p>Esta es la primera sesión grabada y complementa la Unidad 1 del manual. El profesor aclaró que sus clases <em>complementan</em> el manual, no lo repiten.</p>
+
+<h3>Misión, visión y entorno cambiante</h3>
+<ul>
+<li><strong>Misión</strong> = la identidad de la organización: quiénes somos, para qué fue creada, a qué mercado y clientes se dirige y qué necesidades satisface. Ejemplo: la misión de Telefónica ("hacer nuestro mundo más humano conectando la vida de las personas").</li>
+<li><strong>Visión</strong> = el reto o aspiración a alcanzar. Tres ideas básicas: incorpora la idea de triunfo (retos ambiciosos, pero alcanzables, para no frustrar), es <strong>estable a lo largo del tiempo</strong> y compromete y motiva a las personas. Ejemplo: British Petroleum, "ningún accidente ni daño a las personas".</li>
+<li>El entorno es cada vez más cambiante y volátil, por lo que hacen falta <strong>planes de contingencia (plan B)</strong>.</li>
+<li><strong>Dilema del prisionero</strong> (teoría de juegos): ejemplo de escenarios. Si ninguno delata, cada uno recibe 2 años; si uno delata y el otro no, el que delata recibe 1 año y el otro 10. Al no saber qué hará el otro, se busca la mejor opción entre las alternativas.</li>
+</ul>
+
+<h3>Estrategia, táctica y objetivos en cascada</h3>
+<ul>
+<li><strong>Estrategia</strong> = el plan global para alcanzar una posición favorable en el mercado, desplegando los recursos disponibles (humanos, económicos, organizativos, financieros). <strong>Tácticas</strong> = maniobras específicas en que se concreta la estrategia. Analogía: la táctica gana batallas y la estrategia gana guerras (ganar partido a partido para ganar la liga).</li>
+<li><strong>Horizontes</strong>: corto plazo = hasta 1 año como máximo. En un plan a 10 años se puede trocear: corto (0 a 1), medio (1 a 3) y largo (3 a 10).</li>
+<li><strong>Objetivos en cascada</strong>: el <strong>objetivo global o corporativo</strong> (ejemplo: alcanzar el 40% de cuota de mercado) se baja a <strong>objetivos departamentales</strong> distintos para cada área (logística, producción, RR. HH., ventas), de modo que su suma lleve al objetivo final. Cada departamento aplica después sus <strong>estrategias</strong>. Esta es una tarea del <strong>controller de gestión</strong>.</li>
+<li><strong>Indicador, meta y objetivo son cosas distintas</strong>: el <strong>indicador</strong> es la métrica que dice el grado de avance; la <strong>meta</strong> es la cifra de referencia para saber si ese valor es bueno o malo (ejemplo: 30% de las ventas al primer trimestre); el <strong>objetivo</strong> es el resultado final (el anual). Si el indicador marca 25% y la meta era 30%, vamos retrasados.</li>
+<li>Cada indicador se mide con la <strong>frecuencia adecuada</strong>: la cotización de una acción es en tiempo real, la tasa de desempleo es mensual, el precio de la vivienda cambia tras una tasación (semestral), el PIB es anual y el censo era cada 10 años.</li>
+</ul>
+
+<h3>Objetivos SMART (versión del profesor)</h3>
+<table>
+<thead><tr><th>Característica</th><th>Qué exige</th></tr></thead>
+<tbody>
+<tr><td>Específico</td><td>Concretar la meta con cifras exactas ("incrementar el beneficio" no basta: ¿cuánto?).</td></tr>
+<tr><td>Medible</td><td>Cuantificable y objetivo, sin subjetividad. Ejemplo: evaluar el "compromiso" de un empleado genera discusiones, mientras que el grado de ventas no se discute.</td></tr>
+<tr><td>Alcanzable</td><td>Si es imposible, genera frustración, desapego y ganas de irse (ejemplo: pedir 80.000 € de ventas a quien como máximo vende 35.000).</td></tr>
+<tr><td>Realista</td><td>Coherente con los medios disponibles (no vender más de lo que la capacidad productiva puede servir).</td></tr>
+<tr><td>Temporal</td><td>Con fecha o plazo: no es lo mismo 80.000 € al trimestre que al año.</td></tr>
+</tbody></table>
+
+<h3>Documentos previsionales (ejemplos de clase)</h3>
+<ul>
+<li>Sirven para prever ingresos y gastos, saber <strong>cuándo</strong> hará falta dinero y planificar cómo financiarlo: fondos propios, préstamo o póliza de crédito, ampliación de capital, salida a bolsa o emisión de deuda y bonos (renta fija privada).</li>
+<li><strong>Flujo de caja proyectado</strong>: refleja lo <strong>percibido</strong> (cobros y pagos reales), no lo devengado. En el ejemplo, caja inicial 15.200 y, tras cobros, pagos, un préstamo y su devolución, caja final prevista de 500.</li>
+<li><strong>Cuenta de resultados proyectada</strong>: usa el criterio de devengo (las ventas cuentan aunque no se hayan cobrado). La <strong>amortización</strong> no es una salida de dinero, es la pérdida de valor de un activo (ejemplo: una furgoneta amortizada en 5 años); se resta para reducir el beneficio y pagar menos impuestos, y luego se suma de vuelta.</li>
+<li><strong>Balance previsional</strong>: compara la situación inicial con la proyectada a fin de año (caja, deudores, proveedores, deuda, capital).</li>
+</ul>
+
+<h3>Cuadro de mando integral (clase)</h3>
+<ul>
+<li>Se asienta en cuatro principios: <strong>perspectivas y mapa estratégico</strong>, <strong>relaciones causa-efecto</strong> de los objetivos estratégicos, <strong>indicadores con metas</strong> e <strong>iniciativas estratégicas</strong>. Se basa en la teoría de Kaplan y Norton.</li>
+<li>Perspectivas: <strong>financiera</strong> (ratios e informes contables), <strong>cliente</strong> (relación y fidelización, postventa, calidad, imagen y reseñas), <strong>procesos internos</strong> (eficiencia, calidad, producción) y <strong>aprendizaje y crecimiento</strong> (formación, habilidades, ideas de los empleados).</li>
+<li><strong>Ejemplo de relación causa-efecto</strong> (de abajo hacia arriba): formación técnica y cambio de cultura (aprendizaje y crecimiento) → innovación en productos y just in time con proveedores (procesos) → cero defectos y fidelización de clientes (cliente) → más ingresos por cliente y menos costes (financiera) → mayor beneficio o rentabilidad, que es el objetivo corporativo.</li>
+<li><strong>Ejemplo de lectura del cuadro</strong>: objetivo = aumentar ROE; indicador = ROE; meta = entre 7% y 12%. Ingreso medio por cliente (meta 250 €), coste medio por cliente (meta 140 €), % de devoluciones sobre ventas (meta por debajo de 0,25%; un 5% indica un problemón) y fidelización (meta por encima de 75%; un 20% es un problema).</li>
+<li>A cada objetivo se le añaden <strong>iniciativas estratégicas</strong>, con su coste, que se carga a la perspectiva donde se origina (por ejemplo, incentivar la participación de empleados cuesta a RR. HH., pero mejora clientes y beneficio).</li>
+<li>Herramientas: <strong>Excel</strong>, <strong>Power BI</strong> (gráficos actualizables en tiempo real) y <strong>BSC Designer</strong> (gratuita, la que el profesor considera más didáctica).</li>
+</ul>
+
+<h3>Proceso de dirección estratégica (clase)</h3>
+<ul>
+<li>Ciclo: misión y visión → objetivos → análisis (interno y externo) → planificación estratégica (documentos previsionales) → implementación → seguimiento con indicadores → identificar los elementos que entran en conflicto con la estrategia.</li>
+<li>Tres fases: <strong>análisis</strong>, <strong>formulación</strong> e <strong>implementación</strong>.</li>
+<li><strong>Herramientas de análisis</strong> citadas: PESTEL (entorno general), DAFO/FODA, ciclo de vida de la industria, cinco fuerzas de Porter y matriz General Electric (McKinsey).</li>
+<li><strong>Formulación</strong>: se identifican alternativas (de entrada, barreras, crecimiento, líneas de producto), se plantean escenarios mejor y peor (plan B) y las <strong>reacciones de los rivales</strong> (te copiarán en pocos días, por eso lo que protege es fidelizar al cliente), con análisis cuantitativos. Después se elige el tipo de estrategia: <strong>bajo coste</strong>, <strong>diferenciación</strong>, <strong>nicho</strong>, <strong>alianzas</strong> o <strong>integración vertical</strong> (hacerlo todo en casa en lugar de externalizar).</li>
+<li><strong>Plan estratégico</strong>: programación de acciones (fechas, objetivos, responsables), estimaciones financieras, diseño organizativo (quizá reconfigurar departamentos) y gestión del conocimiento. Hay que comunicarlo y contar con la <strong>resistencia al cambio</strong> (anécdota del profesor al pasar de sueldos fijos y comidas libres a fijo + variable).</li>
+</ul>
+
+<h3>PESTEL (consejos del profesor)</h3>
+<ul>
+<li>Hay que analizar solo lo que <strong>afecta al negocio</strong>, no describir generalidades (no sirve poner "España es una monarquía democrática").</li>
+<li>Ejemplos: <strong>político</strong> (subvenciones, leyes que favorecen o entorpecen el negocio); <strong>económico</strong> (inflación → suben los tipos → hipotecas más caras → menos compra de vivienda → mal para una inmobiliaria); <strong>social</strong> (McDonald's tuvo que adaptar su modelo en China); <strong>tecnológico</strong> (cuán familiarizada está la sociedad con la tecnología, clave en un negocio online); <strong>ecológico</strong> (una petroquímica puede tener mala imagen); <strong>legal</strong> (expropiaciones si no hay reglas de juego claras).</li>
+</ul>
+
+<h3>Lo que dijo sobre el examen en esta clase</h3>
+<ul>
+<li>Habrá cuatro entregas y luego una evaluación de opción múltiple, sin desarrollar nada. Lo dijo "de memoria", porque la asignatura la heredó el año anterior y no la diseñó él.</li>
+<li>La última clase será de repaso de los temas que pueden entrar; el examen sería unas dos semanas después. Con las diapositivas y el manual "no deberían tener problema".</li>
+</ul>
+
+<h2>Herramientas para la planificación estratégica (Unidad 1 oficial, Tema 3)</h2>
+<p><em>Esta sección sale del material del manual (no de las clases). El profesor pidió repasar las 5 fuerzas de Porter, y el examen cubre todas las unidades.</em></p>
+<p>El proceso de planificación estratégica parte del <strong>análisis estratégico</strong>: obtener información del entorno general y específico para diseñar estrategias que permitan alcanzar la misión y la visión. Las herramientas sirven tanto para el análisis externo como para el interno.</p>
+<table>
+<thead><tr><th>Herramienta</th><th>Qué analiza</th></tr></thead>
+<tbody>
+<tr><td>PESTEL</td><td>Entorno general</td></tr>
+<tr><td>Ciclo de vida de la industria</td><td>Entorno específico: fase en la que está la industria</td></tr>
+<tr><td>5 fuerzas de Porter</td><td>Entorno específico: agentes de la industria (proveedores, clientes, competidores)</td></tr>
+<tr><td>Matriz GE-McKinsey</td><td>Entorno específico: posicionamiento de mercado</td></tr>
+<tr><td>Recursos y capacidades</td><td>Análisis interno</td></tr>
+<tr><td>Cadena de valor</td><td>Análisis interno: actividades que generan ventaja competitiva</td></tr>
+<tr><td>DAFO / FODA</td><td>Síntesis de lo interno y lo externo</td></tr>
+</tbody></table>
+
+<h3>PESTEL</h3>
+<ul>
+<li>Valora los factores del entorno general que pueden afectar a la empresa: <strong>P</strong>olíticos, <strong>E</strong>conómicos, <strong>S</strong>ociales, <strong>T</strong>ecnológicos, <strong>M</strong>edioambientales (la "E" de ecológicos) y <strong>L</strong>egales.</li>
+<li>Pone especial énfasis en los elementos que hayan cambiado recientemente.</li>
+<li>Se recomienda valorar el impacto de cada variable con una <strong>escala Likert</strong> (1 a 5) para distinguir impacto negativo, neutro y positivo.</li>
+</ul>
+
+<h3>Ciclo de vida de la industria (5 fases)</h3>
+<table>
+<thead><tr><th>Fase</th><th>Qué ocurre</th></tr></thead>
+<tbody>
+<tr><td>1. Start-up</td><td>Primeras organizaciones y prototipos. Flujo de caja negativo por la gran inversión (ej.: coches sin conductor).</td></tr>
+<tr><td>2. Crecimiento</td><td>El mercado acepta el producto, se intensifican las inversiones y entran más competidores. Se distinguen líderes y seguidores (menor cuota).</td></tr>
+<tr><td>3. Shake-out</td><td>Punto de inflexión. Las empresas con posicionamiento consolidado siguen obteniendo retorno; las que no se ajustan a los clientes salen de la industria o se especializan en un nicho.</td></tr>
+<tr><td>4. Madurez</td><td>Se consolida el retorno de la inversión y se obtienen los mayores beneficios. Muchas empresas invierten en nuevos desarrollos o mercados.</td></tr>
+<tr><td>5. Declive</td><td>Las entidades abandonan el mercado; quedan las que tienen vínculo con otros productos (ej.: CD y DVD).</td></tr>
+</tbody></table>
+<p>En el gráfico del manual se comparan tres curvas a lo largo de las fases: ingresos, flujo de caja y beneficio.</p>
+
+<h3>Las 5 fuerzas de Porter (Porter, 2008; también llamado "diamante de Porter" en el manual)</h3>
+<ol>
+<li><strong>Poder de negociación de los proveedores</strong></li>
+<li><strong>Poder de negociación de los clientes</strong></li>
+<li><strong>Competidores actuales</strong> (rivalidad): sus fortalezas y el tipo de clientes a los que se dirigen.</li>
+<li><strong>Posibilidad de entrada de nuevos competidores</strong>: se valoran las barreras de entrada de la industria.</li>
+<li><strong>Existencia de productos sustitutivos</strong>: satisfacen la misma necesidad desde otra perspectiva (ej.: para una empresa que produce café, el agua es sustitutivo porque ambos satisfacen la necesidad de hidratación).</li>
+</ol>
+<ul>
+<li>El poder de negociación mide cuánto poder tiene cada agente frente a la empresa para negociar condiciones como calidad, precio o tiempo de entrega. <strong>Cuanto mayor es el poder de proveedores o clientes, mayor es la susceptibilidad de la empresa a sus decisiones.</strong></li>
+<li>Nota del manual: además de la herramienta, conviene valorar directamente a cada competidor y compararlo con la organización en distintos ámbitos, para conocer sus ventajas competitivas.</li>
+</ul>
+
+<h3>Matriz General Electric &amp; McKinsey</h3>
+<ul>
+<li>La creó McKinsey para General Electric. Cruza dos variables en una <strong>matriz de nueve posiciones</strong>: <strong>posición competitiva</strong> (eje X: fuerte, media o débil) y <strong>atractivo del mercado/industria</strong> (eje Y: alto, medio o bajo).</li>
+<li><strong>Atractivo alto + posición fuerte</strong>: ventaja clara; conviene seguir invirtiendo (zona de inversión).</li>
+<li><strong>Cuadrantes verdes</strong>: proteger la ventaja competitiva y mantener la posición; invertir selectivamente, decidiendo si mantener o mejorar según el potencial de crecimiento.</li>
+<li><strong>Naranja-rojo</strong> (atractivo menor y posición media-débil): analizar cada producto y decidir si dejar de producirlo o darle recursos mínimos para obtener sus últimos beneficios.</li>
+<li><em>El manual dice "cuatro zonas" pero describe tres.</em></li>
+</ul>
+
+<h3>Análisis de recursos y capacidades</h3>
+<ul>
+<li>Es análisis <strong>interno</strong>, complementario al análisis externo; juntos dan una visión global.</li>
+<li><strong>Recursos</strong>: tangibles (tecnologías, maquinaria) e intangibles (marcas registradas, patentes, licencias).</li>
+<li><strong>Capacidades</strong>: elementos intangibles que pertenecen a cada persona, vinculados al capital humano; hay que identificarlas y potenciarlas para generar sinergias.</li>
+</ul>
+
+<h3>Cadena de valor</h3>
+<ul>
+<li><strong>Actividades primarias</strong>: logística interna, operaciones, logística externa, marketing y ventas, servicios posventa.</li>
+<li><strong>Actividades secundarias o de apoyo</strong>: gestión de recursos humanos, desarrollo tecnológico, aprovisionamiento e infraestructura de la organización.</li>
+<li>Sirve para identificar cuáles contribuyen significativamente a la ventaja competitiva. Esta puede venir de: <strong>diferenciación</strong> (características particulares y distintas), <strong>liderazgo en costes</strong> (organización interna que permite ofrecer al menor precio) o <strong>enfoque / segmentación</strong> (elementos basados en características particulares del consumidor, ej.: un buen servicio de atención posventa).</li>
+</ul>
+
+<h3>DAFO / FODA</h3>
+<ul>
+<li>Combina lo externo (<strong>oportunidades y amenazas</strong>) con lo interno (<strong>fortalezas y debilidades</strong>) para tener un diagnóstico de la empresa.</li>
+<li>Permite diseñar estrategias para potenciar las fortalezas, aprovechar las oportunidades, mitigar las amenazas y reducir el impacto de las debilidades.</li>
+<li>Recuerda lo que dijo el profesor en clase: el DAFO identifica; hace falta un segundo análisis (CAME) con las medidas para corregir, afrontar, mantener y explotar.</li>
+</ul>
+<h2>Caso de estudio: Iberia (Unidad 1 oficial, Tema 4)</h2>
+<p><em>Sale del podcast del manual con Federico Soto, profesor de la Universidad Europea y exresponsable de Planificación Estratégica de Iberia.</em></p>
+<ul>
+<li><strong>Dos formas de elaborar un business plan</strong>: <strong>top-down</strong> (parte del análisis y la formulación estratégica, desde la dirección) y <strong>bottom-up</strong> (parte de una empresa en funcionamiento: proyecta sus cuentas anuales a futuro en función de variables macro). El bottom-up es una aproximación más financiera y menos estratégica, porque parte de una situación numérica determinada.</li>
+<li>Las <strong>tres variables macro</strong> que condicionaban el plan de Iberia: <strong>inflación</strong> (muchos ingresos venían de países con inflación alta, como Venezuela o Argentina), <strong>tipo de cambio</strong> (sobre todo dólar-euro) y <strong>precio del combustible</strong>, el principal coste operativo (más del 60%) y muy variable (de 80 € a 130 € el barril en cuatro años). Las daba una consultora externa (Oxford Economics).</li>
+<li>A partir de las cuentas anuales base se trasladaban las cuentas al futuro con <strong>iniciativas, proyectos y propuestas</strong> hasta llegar al futuro deseado. Beneficios pasados no garantizan beneficios futuros.</li>
+<li>Iberia tiene varios negocios (la aerolínea, que es la que manda, la carga aérea, la gestión aeroportuaria o <em>handling</em> y el mantenimiento y reparación de aviones), por lo que había que partir de los <strong>recursos y capacidades</strong> de cada área.</li>
+<li><strong>Cómo se baja la estrategia a números</strong>: la dirección general hace el <em>challenge</em> y fija los KPI (rentabilidad, ROI, EBITDA, beneficio). Cada director de área propone <strong>iniciativas</strong>, y cada una se resume en una <strong>ficha</strong> con qué se va a hacer, cómo, quién es el <em>sponsor</em> y qué impacto tiene en cada KPI.</li>
+<li>Es una aproximación <strong>mixta entre top-down y bottom-up</strong>: la dirección marca las metas y cada área decide cómo llegar, con autonomía. Luego todo se valida en conjunto, porque debe haber <strong>correlación entre áreas</strong> (no puede subir el número de aviones y que mantenimiento gaste menos). El plan es como un rompecabezas con una visión holística.</li>
+</ul>
+
+<h2>Formulario resumen</h2>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Fórmula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interés simple</td>
+<td>i·t/12 (tasa anual prorrateada a meses)</td>
+</tr>
+<tr>
+<td>Interés compuesto</td>
+<td>VF = VA·(1+i)^t</td>
+</tr>
+<tr>
+<td>VAN</td>
+<td>Σ Flujo_n / (1+tasa)^n − Inversión inicial</td>
+</tr>
+<tr>
+<td>TIR</td>
+<td>Tasa que hace VAN = 0</td>
+</tr>
+<tr>
+<td>Payback (simple)</td>
+<td>Año donde el flujo acumulado pasa a positivo</td>
+</tr>
+<tr>
+<td>Fondo de maniobra</td>
+<td>Activo corriente − Pasivo corriente</td>
+</tr>
+<tr>
+<td>ROI</td>
+<td>Beneficio / Inversión</td>
+</tr>
+<tr>
+<td>ROA</td>
+<td>BAIT / Activo total</td>
+</tr>
+<tr>
+<td>ROE</td>
+<td>Resultado del ejercicio / Patrimonio neto</td>
+</tr>
+<tr>
+<td>Liquidez general</td>
+<td>Activo corriente / Pasivo corriente</td>
+</tr>
+<tr>
+<td>Test ácido</td>
+<td>(Clientes + inv. financieras + tesorería) / Pasivo corriente</td>
+</tr>
+<tr>
+<td>Ratio de caja</td>
+<td>Tesorería / Pasivo corriente</td>
+</tr>
+<tr>
+<td>Ratio de firmeza</td>
+<td>Activo no corriente / Exigible largo plazo</td>
+</tr>
+<tr>
+<td>Ratio de garantía</td>
+<td>Activo real / Exigible total</td>
+</tr>
+<tr>
+<td>Endeudamiento general</td>
+<td>Exigible / Pasivo total</td>
+</tr>
+<tr>
+<td>Coeficiente de endeudamiento</td>
+<td>Exigible / Patrimonio neto</td>
+</tr>
+<tr>
+<td>Coste de la deuda</td>
+<td>Gastos financieros / Deuda con coste</td>
+</tr>
+<tr>
+<td>Cobertura gastos financieros</td>
+<td>BAIT / Gastos financieros</td>
+</tr>
+<tr>
+<td>WACC</td>
+<td>(E/(E+D))·Re + (D/(E+D))·Rd·(1−t)</td>
+</tr>
+<tr>
+<td>Valor residual</td>
+<td>FCF_año5 / WACC</td>
+</tr>
+</tbody>
+</table>
+<h2>Fórmulas de Excel para el examen</h2>
+<p>El examen permite usar Excel o una calculadora financiera, y el profesor dijo que una calculadora científica normal no sirve para VAN o TIR. Sobre la TIR aclaró que no hace falta saber la fórmula manual: hay que practicarla en Excel. Si se descuenta o capitaliza a mano, sí hay que saber la fórmula (se ve abajo). <em>Convención: Excel en español separa argumentos con punto y coma (;).</em></p>
+
+<h3>1. Lo que mostró el profesor en clase</h3>
+<table>
+<thead><tr><th>Qué</th><th>Cómo se hace en Excel</th></tr></thead>
+<tbody>
+<tr><td><strong>TIR</strong></td><td>Pestaña Fórmulas → Financieras → TIR, y en "Valores" seleccionar la inversión inicial (en negativo) y los flujos siguientes: <code>=TIR(B2:F2)</code>. Ejemplo: −10.000; 2.000; 3.000; 4.000; 5.000 → <strong>12,83%</strong>.</td></tr>
+<tr><td><strong>Número aleatorio</strong> (Monte Carlo)</td><td><code>=ALEATORIO()</code> da un decimal entre 0 y 1. La más práctica es <code>=ALEATORIO.ENTRE(80;120)</code>, que genera un valor entre el inferior y el superior (distribución uniforme).</td></tr>
+<tr><td><strong>Recalcular escenarios</strong></td><td>Con <strong>F9</strong> se recalculan los valores aleatorios. Se arrastra la fórmula hacia abajo para generar muchas simulaciones.</td></tr>
+<tr><td><strong>Estadísticos de la simulación</strong></td><td>Datos → Análisis de datos → <strong>Estadística descriptiva</strong> (media, mínimo, máximo, etc.). Si no aparece: Archivo → Opciones → Complementos → Ir → activar "Herramientas para análisis".</td></tr>
+<tr><td><strong>Valor actual, descuento, flujos</strong></td><td>Todo se puede hacer con las funciones de Fórmulas → Financieras; si se hace a mano hay que saber capitalizar y descontar (ver sección 2).</td></tr>
+</tbody></table>
+
+<h3>2. Fórmulas para teclear en una celda</h3>
+<table>
+<thead><tr><th>Concepto</th><th>Qué es</th><th>Fórmula en Excel</th><th>Ejemplo de clase</th></tr></thead>
+<tbody>
+<tr><td>Interés simple del periodo</td><td>Parte de la tasa anual que corresponde al plazo del documento (hasta 1 año); se prorratea por meses.</td><td><code>=i*t/12</code> (t en meses)</td><td>5% a 6 meses → 2,5%</td></tr>
+<tr><td>Valor futuro, interés simple (≤ 1 año)</td><td>Capital de hoy más los intereses simples que genera en el plazo.</td><td><code>=VA*(1+i*t/12)</code></td><td></td></tr>
+<tr><td>Valor futuro, interés compuesto (&gt; 1 año)</td><td>Capital de hoy capitalizado con interés sobre interés; el tiempo va como exponente.</td><td><code>=VA*(1+i)^(t/12)</code></td><td><code>=1000*(1+5%)^(18/12)</code> → 1.075,93</td></tr>
+<tr><td>Valor actual, descuento simple (pagaré)</td><td>Lo que se cobra hoy por un documento a futuro: al nominal se le restan los intereses por adelantado.</td><td><code>=VF*(1-i*t/12)</code></td><td>Pagaré de 1.000 a 6 meses al 5% → <strong>975</strong></td></tr>
+<tr><td>Valor actual, descuento compuesto</td><td>Lleva un capital futuro al momento cero, dividiéndolo entre (1+i) elevado al tiempo.</td><td><code>=VF/(1+i)^t</code></td><td><code>=57963,70/(1+3%)^5</code> → 50.000</td></tr>
+<tr><td>VAN</td><td>Flujos futuros descontados al momento cero menos la inversión inicial. Si es positivo, el proyecto devuelve la inversión, cubre la rentabilidad exigida y deja un remanente.</td><td><code>=F0+VNA(k;F1:Fn)</code> con F0 negativo</td><td>Flujos −100.000; 50.000; 50.000; 30.000; 20.000; 10.000 al 18% → <strong>11.227,90</strong> (y TIR = 24,27%)</td></tr>
+<tr><td>TIR</td><td>Tasa de descuento que hace el VAN igual a cero: la rentabilidad real del proyecto.</td><td><code>=TIR(F0:Fn)</code></td><td>Ver sección 1</td></tr>
+<tr><td>Recuperación de la inversión (payback)</td><td>Tiempo que tarda el proyecto en recuperar la inversión inicial con sus flujos.</td><td>Fila de flujo acumulado: <code>=D3+E2</code> hasta que pase a positivo. Año de recuperación: <code>=años completos + pendiente/flujo del año*365</code></td><td>"3 años y 122 días"</td></tr>
+<tr><td>Amortización lineal</td><td>Pérdida de valor del activo fijo repartida en cuotas iguales durante su vida útil.</td><td><code>=Inversión/años</code></td><td>505.000 / 4 = 126.250 al año</td></tr>
+<tr><td>Fondo de maniobra</td><td>Activo corriente menos pasivo corriente: colchón de liquidez a corto plazo.</td><td><code>=AC-PC</code></td><td></td></tr>
+<tr><td>Punto de equilibrio en unidades</td><td>Unidades que hay que vender para no ganar ni perder (cubrir todos los costes).</td><td><code>=CF/(PV-CV)</code></td><td>2.000/(50−30) → 100 unidades</td></tr>
+<tr><td>Punto de equilibrio en euros</td><td>Facturación necesaria para no ganar ni perder; usa el margen de contribución relativo (PV−CV)/PV.</td><td><code>=CF/((PV-CV)/PV)</code></td><td>2.000/0,40 → 5.000 €</td></tr>
+<tr><td>Coste de capital propio (CAPM)</td><td>Rentabilidad que exigen los accionistas: tasa libre de riesgo más prima de riesgo ajustada por la beta.</td><td><code>=Rf+beta*PR</code></td><td><code>=3%+1,4*6%</code> → 11,4%</td></tr>
+<tr><td>WACC</td><td>Coste promedio ponderado del capital: mezcla del coste de los recursos propios y de la deuda (con ahorro fiscal). Es la tasa para descontar flujos.</td><td><code>=E/(E+D)*Re+D/(E+D)*Rd*(1-t)</code></td><td>D/E = 2: <code>=(1/3)*11,4%+(2/3)*8%*(1-30%)</code> → 7,53%</td></tr>
+<tr><td>Valor residual</td><td>Valor, en el último año proyectado, de todos los flujos posteriores (renta perpetua).</td><td><code>=FCF/WACC</code></td><td>50.000 / 10% → 500.000</td></tr>
+<tr><td>Valor esperado en pérdida</td><td>Medida de riesgo: la consecuencia de un riesgo multiplicada por su probabilidad.</td><td><code>=consecuencia*probabilidad</code></td><td>Visto en la clase de riesgos</td></tr>
+<tr><td>CTR (marketing digital)</td><td>Porcentaje de veces que se hizo clic sobre las veces que se vio el anuncio.</td><td><code>=clics/impresiones</code></td><td>9.362 / 2.975.000 → 0,31%</td></tr>
+</tbody></table>
+
+<h3>3. Ratios y ciclos en Excel</h3>
+<table>
+<thead><tr><th>Concepto</th><th>Fórmula en Excel</th><th>Ejemplo de clase</th></tr></thead>
+<tbody>
+<tr><td>Liquidez general</td><td><code>=AC/PC</code></td><td></td></tr>
+<tr><td>Test ácido</td><td><code>=(Clientes+InvFin+Tesorería)/PC</code></td><td></td></tr>
+<tr><td>ROA / ROE</td><td><code>=BAIT/Activo</code> · <code>=Resultado/PatrimonioNeto</code></td><td></td></tr>
+<tr><td>Rotación de mercancías</td><td><code>=CMV/ExistenciasMedias</code></td><td>50.000 / 9.000 → 5,56</td></tr>
+<tr><td>Periodo medio de almacenamiento</td><td><code>=365/Rotación</code></td><td>→ 65,7 días</td></tr>
+<tr><td>Compras</td><td><code>=CMV+ExistFinales-ExistIniciales</code></td><td>50.000 + 6.500 − 11.500 → 45.000</td></tr>
+<tr><td>Periodo medio de cobro</td><td><code>=DeudoresMedios/(1+IVA)*365/Ventas</code></td><td></td></tr>
+<tr><td>Periodo medio de pago</td><td><code>=AcreedoresMedios/(1+IVA)*365/Compras</code></td><td>→ 55,3 días</td></tr>
+<tr><td>Maduración económica</td><td><code>=PMA+PMC</code></td><td>→ 68,46 días</td></tr>
+<tr><td>Ciclo de caja (maduración financiera)</td><td><code>=PME-PMP</code></td><td>68,46 − 55,3 → 13,16 días</td></tr>
+</tbody></table>
+
+<h3>4. Otras funciones de Excel útiles (no mostradas en clase)</h3>
+<ul>
+<li><strong>Cuidado con VNA:</strong> la función <code>=VNA(tasa; F1:Fn)</code> descuenta el primer valor un periodo. Por eso la inversión inicial (año 0) <strong>no</strong> va dentro del rango: se suma aparte, <code>=VNA(tasa;F1:Fn)+F0</code>. Si la metes en el rango, el resultado queda mal.</li>
+<li><code>=VF(tasa;nper;pago;va)</code>, <code>=VA(tasa;nper;pago;vf)</code> y <code>=PAGO(tasa;nper;va)</code> son las funciones financieras de valor futuro, valor actual y cuota. Con pago vacío y el capital con signo negativo dan el valor futuro o actual de un solo capital.</li>
+<li>Probabilidad de VAN negativo en Monte Carlo: <code>=CONTAR.SI(rango;"&lt;0")/CONTAR(rango)</code>.</li>
+<li>La TIR necesita al menos un flujo negativo y uno positivo.</li>
+</ul>
+<h2>Qué falta / posibles vacíos de cara al examen</h2>
+<p>(Este cuaderno se basa en las 10 clases, la guía de aprendizaje, el comunicado oficial del examen y los 4 temas de la Unidad 1 del manual.)</p>
+<ul>
+<li><strong>Falta la grabación de la segunda sesión.</strong> La primera ya está incluida (clase 10). La segunda empieza en el archivo de 67 segundos ("disponible la clase de ayer"), que no tiene contenido, y la clase 2 remite a cosas vistas en "la clase anterior" (el factoring con bancos) que no están en ninguna transcripción. Es probable que ahí se continuara con las herramientas estratégicas (la primera clase terminó en el PESTEL y dijo "esto seguimos mañana"), pero es una deducción.</li>
+<li><strong>Discrepancia a confirmar:</strong> la guía de aprendizaje pide ≥ 5,0 de nota final, el comunicado del examen dice 4,5. En ambos casos hace falta ≥ 4,5 en el examen para que promedie.</li>
+<li>Las unidades 4 a 6 oficiales se vieron en clase solo en parte; no hay clase sobre "toma de decisiones" ni sobre casos de éxito PyMEs como tema propio.</li>
+</ul>
+
+  </div>
+
+  <div id="panel-quiz" class="tab-panel">
+
+    <div id="screen-setup">
+      <h1>Simulador de examen — Módulo 2</h1>
+      <p class="subtitle">Planificación Financiera y Tecnología de Control de Gestión</p>
+
+      <div class="card">
+        <p style="margin:0 0 12px; font-size:14px; color:var(--text-secondary);">Qué preguntas quieres:</p>
+        <div class="chip-row" id="mode-chips"></div>
+
+        <p style="margin:16px 0 12px; font-size:14px; color:var(--text-secondary);">Elige qué unidades quieres practicar:</p>
+        <div class="chip-row" id="unit-chips"></div>
+
+        <p style="margin:16px 0 8px; font-size:14px; color:var(--text-secondary);">Número de preguntas:</p>
+        <div class="chip-row" id="count-chips"></div>
+
+        <div id="setup-err" class="err hidden">Elige al menos una unidad.</div>
+
+        <div style="margin-top:18px;">
+          <button class="btn btn-primary" id="start-btn">Empezar examen</button>
+        </div>
+        <div id="best-score" style="margin-top:14px; font-size:13px; color:var(--text-secondary);"></div>
+      </div>
+    </div>
+
+    <div id="screen-quiz" class="hidden">
+      <div class="meta-row">
+        <span id="q-counter"></span>
+        <span id="q-unit-label"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="card">
+        <p class="q-text" id="q-text"></p>
+        <div id="options"></div>
+        <div id="exp-box" class="exp-box hidden">
+          <span class="exp-label" id="exp-label"></span>
+          <span id="exp-text"></span>
+        </div>
+      </div>
+      <button class="btn btn-primary hidden" id="next-btn">Siguiente</button>
+    </div>
+
+    <div id="screen-result" class="hidden">
+      <h1>Resultado</h1>
+      <div class="card">
+        <div class="score-big" id="score-big"></div>
+        <div class="score-sub" id="score-sub"></div>
+        <div id="unit-breakdown"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="review-btn">Ver repaso</button>
+        <button class="btn btn-primary" id="retry-btn">Nuevo intento</button>
+      </div>
+    </div>
+
+    <div id="screen-review" class="hidden">
+      <h1>Repaso de respuestas</h1>
+      <div class="card" id="review-list"></div>
+      <button class="btn btn-primary" id="back-to-result-btn">Volver al resultado</button>
+    </div>
+
+  </div>
+
+  <div id="panel-calc" class="tab-panel">
+    <h1>Ejercicios de cálculo</h1>
+    <p class="subtitle">Un ejemplo de cada cálculo probable en el examen. Resuélvelo con Excel o calculadora, escribe el resultado y compruébalo. Cada solución incluye la fórmula de Excel.</p>
+    <div id="calc-list"></div>
+  </div>
+
+</div>
+
+<script>
+function showTab(name) {
+  ['guide','quiz','calc'].forEach(n => {
+    document.getElementById('panel-' + n).classList.toggle('active', name === n);
+    document.getElementById('tabbtn-' + n).classList.toggle('active', name === n);
+  });
+  window.scrollTo(0, 0);
+}
+
+const ALL_QUESTIONS = [{"unit": 1, "type": "teoria", "q": "Un pagare de empresa se emite normalmente:", "options": ["Al valor nominal, cobrando intereses aparte", "Al descuento: se paga menos del nominal y al vencimiento se cobra el nominal", "Con el interes ya pagado en efectivo por adelantado al comprador", "A un precio superior al nominal"], "correct": 1, "exp": "Los pagares se emiten al descuento: el inversor desembolsa menos del valor nominal y al vencimiento recibe el nominal completo; la diferencia es el interes.", "p": 1, "g": "financiacion"}, {"unit": 1, "type": "calculo", "q": "Un pagare a 6 meses ofrece una tasa anual del 8%. ¿Que interes efectivo corresponde al periodo?", "options": ["8%", "4%", "2%", "16%"], "correct": 1, "exp": "Interes simple: i_periodo = i_anual x t/12 = 8% x 6/12 = 4%.", "p": 1, "g": "financiacion"}, {"unit": 1, "type": "calculo", "q": "Un documento a 18 meses paga una tasa anual del 6%, capitalizando compuesto. ¿Cual es el exponente (t) a aplicar sobre (1+i)?", "options": ["18", "1,5", "0,5", "6"], "correct": 1, "exp": "t = plazo a calcular / plazo de la tasa publicada = 18 meses / 12 meses = 1,5.", "p": 1, "g": "valor_actual"}, {"unit": 1, "type": "teoria", "q": "¿Cuando se debe usar interes compuesto en vez de interes simple para descontar un documento?", "options": ["Siempre, sin excepcion", "Cuando el plazo del documento es superior a 1 año", "Solo si el documento es un pagare de empresa", "Cuando la tasa es variable"], "correct": 1, "exp": "El interes simple se aplica a plazos de hasta 1 año; para plazos mayores se usa el interes compuesto.", "p": 1, "g": "valor_actual"}, {"unit": 1, "type": "teoria", "q": "La diferencia entre valor actual y valor futuro de un mismo capital se explica por:", "options": ["El tipo de cambio", "La inflacion exclusivamente", "La tasa de interes que se genera durante el tiempo transcurrido", "El tipo de activo del que se trate"], "correct": 2, "exp": "El valor futuro = valor actual + intereses generados en el tiempo; la tasa de interes es la que marca la diferencia.", "p": 1, "g": "valor_actual"}, {"unit": 1, "type": "teoria", "q": "Empresas poco conocidas que emiten pagares suelen tener que ofrecer:", "options": ["Tasas de interes mas bajas que el mercado", "Tasas de interes mas altas, para compensar el mayor riesgo percibido", "El mismo tipo de interes que un banco grande, sin excepcion", "Ninguna tasa, ya que no pueden emitir pagares"], "correct": 1, "exp": "A menor solvencia/reputacion percibida, mayor es la tasa que deben ofrecer para atraer inversores (mayor riesgo, mayor coste).", "p": 1, "g": "financiacion"}, {"unit": 2, "type": "teoria", "q": "En el presupuesto de tesoreria (cash flow proyectado), las cifras que se registran son:", "options": ["Lo devengado, igual que en el estado de resultados", "Lo realmente cobrado y pagado en cada periodo", "Solo las ventas, sin los pagos", "Los saldos finales de balance"], "correct": 1, "exp": "El cash flow proyectado registra los flujos reales de caja (cobros y pagos), a diferencia del estado de resultados que usa el criterio de devengo."}, {"unit": 2, "type": "teoria", "q": "Si una empresa da financiacion a sus clientes a 30 dias, ¿que ocurre con las ventas del ultimo mes del ejercicio en el balance previsional?", "options": ["Se registran integramente como caja cobrada", "La parte no cobrada aun queda como saldo de deudores/clientes en el activo", "Desaparecen del balance", "Se convierten automaticamente en perdida"], "correct": 1, "exp": "La parte de ventas del periodo que aun no se ha cobrado por el plazo de financiacion queda reflejada como cuenta de clientes/deudores en el activo corriente."}, {"unit": 2, "type": "teoria", "q": "El dividendo en acciones (pago de dividendos entregando acciones a los socios) se refleja en el balance previsional como:", "options": ["Una salida de caja igual que el dividendo en efectivo", "Un incremento del capital social, no una salida de caja", "Un pasivo exigible a largo plazo", "Una disminucion de las existencias"], "correct": 1, "exp": "El dividendo en acciones no es una salida de caja: se traduce en un aumento del capital social, ya que se paga entregando acciones."}, {"unit": 2, "type": "calculo", "q": "El presupuesto operativo del caso de clase preve ingresos por ventas de 344.100 EUR y costes de materia prima de 106.560 EUR en el Año 1. ¿Cual es la utilidad bruta?", "options": ["237.540 EUR", "450.660 EUR", "106.560 EUR", "344.100 EUR"], "correct": 0, "exp": "Utilidad bruta = Ingresos - Costes de ventas = 344.100 - 106.560 = 237.540 EUR."}, {"unit": 2, "type": "calculo", "q": "Con una utilidad bruta de 237.540 EUR y gastos operativos (alquiler 36.000 + personal 84.000 + suministros 14.400 + marketing 4.800 = 139.200 EUR), ¿cual es la utilidad operativa (EBITDA)?", "options": ["98.340 EUR", "139.200 EUR", "376.740 EUR", "237.540 EUR"], "correct": 0, "exp": "EBITDA = Utilidad bruta - gastos operativos = 237.540 - 139.200 = 98.340 EUR."}, {"unit": 2, "type": "teoria", "q": "El presupuesto de inversiones (CAPEX) del Año 0 incluye:", "options": ["Solo los gastos de personal previstos", "Los desembolsos en activos fijos: maquinaria, mobiliario/reforma, fianzas/licencias y tecnologia", "Los ingresos por ventas proyectados", "El pago de dividendos"], "correct": 1, "exp": "El CAPEX es la inversion inicial en activos fijos necesarios para arrancar el proyecto (maquinaria, mobiliario, licencias, tecnologia, etc.)."}, {"unit": 3, "type": "teoria", "q": "Si el VAN de un proyecto es mayor que cero, esto significa que:", "options": ["El proyecto no cubre ni siquiera la inversion inicial", "El proyecto genera valor por encima del coste de financiarlo, tras recuperar la inversion", "El proyecto tiene una TIR igual a cero", "Es obligatorio rechazar el proyecto"], "correct": 1, "exp": "VAN > 0 indica que, tras descontar todos los flujos a la tasa exigida y restar la inversion inicial, queda un remanente positivo: el proyecto crea valor.", "p": 1, "g": "van_tir"}, {"unit": 3, "type": "teoria", "q": "La TIR (Tasa Interna de Retorno) se define como:", "options": ["La tasa de descuento que hace que el VAN sea igual a cero", "El tipo de interes que cobra el banco por el prestamo", "La tasa de inflacion esperada del proyecto", "El promedio aritmetico de los flujos de caja"], "correct": 0, "exp": "La TIR es la tasa de descuento para la cual el VAN del proyecto se hace exactamente cero.", "p": 1, "g": "van_tir"}, {"unit": 3, "type": "teoria", "q": "El Flujo Generado por las Operaciones (FGO) se calcula, entre otras cosas, sumando de nuevo las amortizaciones porque:", "options": ["Las amortizaciones aumentan el impuesto a pagar", "Las amortizaciones son un gasto contable que reduce el impuesto pero no representa una salida real de dinero", "Las amortizaciones deben pagarse en efectivo al final del proyecto", "No es correcto sumar las amortizaciones nunca"], "correct": 1, "exp": "Las amortizaciones reducen la base imponible (menor impuesto) pero no son una salida de caja, por eso se suman de nuevo despues de calcular el impuesto."}, {"unit": 3, "type": "teoria", "q": "El 'escudo fiscal' de los intereses de un prestamo bancario se refiere a que:", "options": ["Los intereses estan exentos de cualquier tipo de control fiscal", "Los intereses de la deuda son deducibles del Impuesto sobre Sociedades, reduciendo el coste real de la financiacion", "El banco no cobra intereses si la empresa paga impuestos", "Los intereses se devuelven integramente via Hacienda"], "correct": 1, "exp": "Al ser deducibles fiscalmente, los intereses reducen la base imponible y por tanto el impuesto a pagar, abaratando el coste efectivo de la deuda."}, {"unit": 3, "type": "teoria", "q": "El flujo disponible para los accionistas se obtiene, a grandes rasgos, como:", "options": ["Flujo libre de fondos + flujo de la deuda (incluyendo el ahorro fiscal de los intereses)", "Solo el flujo generado por las operaciones, sin ajustes", "La inversion inicial menos las amortizaciones", "El beneficio neto multiplicado por la tasa de interes"], "correct": 0, "exp": "El flujo para accionistas parte del flujo libre y le suma el flujo de la deuda (entradas y salidas por el prestamo, ya con el ahorro fiscal de los intereses)."}, {"unit": 3, "type": "teoria", "q": "La simulacion de Monte Carlo se utiliza en la evaluacion de proyectos para:", "options": ["Calcular con exactitud unica el VAN del proyecto", "Generar muchos escenarios aleatorios de las variables inciertas y analizar la distribucion de resultados (por ejemplo, la probabilidad de VAN negativo)", "Sustituir por completo el calculo de la TIR", "Determinar el tipo de interes que cobrara el banco"], "correct": 1, "exp": "Monte Carlo simula miles de combinaciones posibles de las variables inciertas para obtener un rango/distribucion de VAN, en vez de un unico numero determinista."}, {"unit": 3, "type": "teoria", "q": "El fondo de maniobra se calcula como:", "options": ["Activo no corriente menos pasivo no corriente", "Activo corriente menos pasivo corriente", "Patrimonio neto menos pasivo total", "Ingresos menos gastos del ejercicio"], "correct": 1, "exp": "Fondo de maniobra = Activo corriente - Pasivo corriente.", "p": 1, "g": "maniobra"}, {"unit": 3, "type": "teoria", "q": "Si una empresa consigue cobrar de sus clientes casi al contado pero paga a sus proveedores a 55 dias, esto:", "options": ["Aumenta sensiblemente sus necesidades de financiacion", "Reduce sensiblemente sus necesidades de financiacion, porque dispone del dinero antes de tener que pagar", "No tiene ningun efecto sobre la liquidez", "Obliga a pedir un prestamo bancario de forma automatica"], "correct": 1, "exp": "Cobrar rapido y pagar tarde reduce el periodo que hay que financiar por cuenta propia, disminuyendo las necesidades de financiacion externa."}, {"unit": 3, "type": "calculo", "q": "Un proyecto requiere una inversion inicial de 600.000 EUR y genera flujos de 75.000, 90.000, 105.000 y 750.000 en los años 1 a 4, descontados a un coste de capital de 7,96%. Si el VAN resultante es 182,22 (positivo), esto indica que:", "options": ["El proyecto no es viable financieramente", "El proyecto cubre la inversion inicial, cubre el coste del capital y ademas deja un remanente positivo", "Hay que rechazar el proyecto porque el VAN deberia ser cero", "La TIR es exactamente 7,96%"], "correct": 1, "exp": "Un VAN positivo, por pequeño que sea, indica que el proyecto cubre inversion + coste de capital y genera un excedente adicional: es viable desde el punto de vista financiero.", "p": 1, "g": "van_tir"}, {"unit": 4, "type": "teoria", "q": "Segun Kaplan y Norton, el Cuadro de Mando Integral organiza los indicadores de una empresa en cuantas perspectivas, y cuales son:", "options": ["3: financiera, clientes y procesos", "4: financiera, clientes, procesos internos, y aprendizaje/crecimiento", "5: incluyendo tambien la perspectiva ambiental por separado", "2: financiera y no financiera"], "correct": 1, "exp": "El modelo clasico de Kaplan y Norton usa 4 perspectivas: financiera, clientes, procesos internos, y aprendizaje y crecimiento (formacion/desarrollo).", "p": 1, "g": "cmi"}, {"unit": 4, "type": "teoria", "q": "¿Cual de las siguientes NO es una caracteristica deseable de un buen indicador (KPI), segun lo visto en clase?", "options": ["Que sea dinamico y se actualice en el tiempo", "Que sea representativo de la estrategia", "Que sea lo mas costoso posible de obtener, para asegurar precision", "Que tenga una referencia u objetivo con el que compararse"], "correct": 2, "exp": "Un buen indicador debe ser simple y de bajo coste de obtener; si el coste de conseguir la informacion supera el valor que aporta, no compensa usarlo."}, {"unit": 4, "type": "teoria", "q": "Los criterios ASG/ESG (ambiental, social y de gobernanza) en el CMI se suelen incorporar:", "options": ["Creando una quinta perspectiva separada obligatoriamente", "Como indicadores adicionales dentro de cada una de las 4 perspectivas ya existentes", "Solo en la perspectiva financiera", "Nunca se combinan con el CMI tradicional"], "correct": 1, "exp": "La corriente que predomino fue anadir indicadores ASG dentro de cada una de las 4 perspectivas existentes, en vez de crear perspectivas nuevas separadas."}, {"unit": 4, "type": "teoria", "q": "El ROE (rentabilidad financiera) se calcula como:", "options": ["Beneficio antes de intereses e impuestos / Activo total", "Resultado del ejercicio / Patrimonio neto", "Beneficio / Inversion total", "Ingresos por ventas / Pasivo corriente"], "correct": 1, "exp": "ROE = Resultado del ejercicio / Patrimonio neto (recursos propios): mide cuanto beneficio genera la empresa con el dinero de sus propios socios."}, {"unit": 4, "type": "teoria", "q": "La rentabilidad economica (ROA) se calcula como:", "options": ["Beneficio antes de intereses e impuestos (BAIT) / Activo total", "Resultado del ejercicio / Patrimonio neto", "Beneficio / Inversion", "Ventas / Activo corriente"], "correct": 0, "exp": "ROA (rentabilidad economica) = BAIT / Activo total: mide cuanto beneficio genera el conjunto de activos de la empresa, antes de intereses e impuestos."}, {"unit": 4, "type": "teoria", "q": "El test acido se diferencia del ratio de liquidez general en que:", "options": ["Incluye ademas el inmovilizado intangible", "Excluye las existencias del activo corriente, quedandose con clientes, inversiones financieras y tesoreria", "Solo considera el pasivo no corriente", "Es identico, solo cambia el nombre"], "correct": 1, "exp": "El test acido es mas estricto: excluye las existencias (menos liquidas) y se queda solo con clientes, inversiones financieras y tesoreria, sobre el pasivo corriente."}, {"unit": 4, "type": "teoria", "q": "El ratio de garantia usa el 'activo real', que se define excluyendo:", "options": ["La tesoreria y los deudores comerciales", "El inmovilizado intangible (por ejemplo, marca o fondo de comercio), porque pierde valor si la empresa liquida", "Las existencias", "El activo corriente en su totalidad"], "correct": 1, "exp": "El activo real excluye partidas como marca o fondo de comercio, ya que su valor es subjetivo y suele desplomarse si la empresa entra en liquidacion."}, {"unit": 4, "type": "teoria", "q": "El coeficiente de endeudamiento se calcula como:", "options": ["Exigible total / Patrimonio neto", "Activo corriente / Pasivo corriente", "Beneficio / Inversion", "Gastos financieros / Deuda con coste"], "correct": 0, "exp": "Coeficiente de endeudamiento = Exigible (deudas) / Patrimonio neto (recursos propios)."}, {"unit": 4, "type": "teoria", "q": "La cobertura de gastos financieros se calcula como:", "options": ["Gastos financieros / Deuda con coste", "BAIT (beneficio antes de intereses e impuestos) / Gastos financieros", "Activo real / Exigible total", "Resultado del ejercicio / Patrimonio neto"], "correct": 1, "exp": "Cobertura de gastos financieros = BAIT / Gastos financieros: indica cuantas veces el beneficio operativo cubre el coste de los intereses."}, {"unit": 4, "type": "calculo", "q": "Una empresa se financia con 60% de fondos propios (rentabilidad exigida 10%) y 40% de deuda (coste 7%), con un Impuesto sobre Sociedades del 30%. ¿Cual es el WACC aproximado?", "options": ["8,5%", "7,96%", "10%", "17%"], "correct": 1, "exp": "WACC = 0,6x0,10 + 0,4x0,07x(1-0,30) = 0,06 + 0,0196 = 0,0796 = 7,96%."}, {"unit": 4, "type": "teoria", "q": "El WACC (coste promedio ponderado del capital) se utiliza principalmente para:", "options": ["Calcular el impuesto sobre sociedades a pagar", "Descontar los flujos futuros de un proyecto y valorar si es viable (tasa minima exigida)", "Determinar el precio de venta de un producto", "Calcular la depreciacion de los activos fijos"], "correct": 1, "exp": "El WACC es la tasa de descuento estandar que se usa para traer al presente los flujos futuros de un proyecto (VAN) y fijar la rentabilidad minima exigida."}, {"unit": 4, "type": "teoria", "q": "Al valorar un proyecto de vida indefinida por el metodo de flujos descontados, el 'valor residual' representa:", "options": ["El valor de desguace de la maquinaria al final del proyecto", "Una renta perpetua que resume todos los flujos esperados a partir de un año de corte (habitualmente el año 5) en adelante", "El valor contable de los activos en el balance inicial", "La suma de todos los dividendos pagados"], "correct": 1, "exp": "Cuando el negocio no tiene fecha de finalizacion conocida, se proyecta un horizonte limitado (p. ej. 5 años) y todo lo posterior se resume como una renta perpetua (valor residual) descontada al año de corte."}, {"unit": 4, "type": "calculo", "q": "Si el flujo de caja libre estabilizado del año 5 en adelante es de 50.000 EUR anuales y el WACC es del 10%, ¿cual es el valor residual en el año 5?", "options": ["500.000 EUR", "50.000 EUR", "5.000 EUR", "550.000 EUR"], "correct": 0, "exp": "Valor residual = FCF / WACC = 50.000 / 0,10 = 500.000 EUR (formula de renta perpetua)."}, {"unit": 4, "type": "teoria", "q": "En el ejemplo de CMI visto en clase (proyecto de restaurante/delivery), la perspectiva 'Cliente y Marketing' incluia indicadores como:", "options": ["Ratio de liquidez general y coeficiente de endeudamiento", "Ticket medio, NPS, tasa de conversion delivery y reseñas positivas", "Horas de formacion por empleado", "VAN del proyecto y TIR"], "correct": 1, "exp": "La perspectiva Cliente y Marketing en el caso practico incluia: ticket medio, volumen de menus, NPS, tasa de conversion delivery y reseñas positivas en Google.", "p": 1, "g": "cmi"}, {"unit": 4, "type": "teoria", "q": "En ese mismo CMI, indicadores como VAN del proyecto, TIR, payback, EBITDA margen y ROI pertenecen a la perspectiva:", "options": ["Cliente y marketing", "Procesos internos", "Financiera", "Aprendizaje y crecimiento"], "correct": 2, "exp": "VAN, TIR, payback, EBITDA margen, ROI y margen de contribucion son indicadores tipicos de la perspectiva financiera del CMI.", "p": 1, "g": "van_tir"}, {"unit": 1, "type": "teoria", "q": "El analisis DAFO identifica debilidades, amenazas, fortalezas y oportunidades. El analisis que complementa al DAFO proponiendo medidas concretas se llama:", "options": ["Analisis PEST", "Analisis CAME", "Analisis Monte Carlo", "Analisis WACC"], "correct": 1, "exp": "El analisis CAME (Corregir, Afrontar, Mantener, Explotar) complementa al DAFO proponiendo acciones concretas para cada cuadrante identificado."}, {"unit": 2, "type": "teoria", "q": "En el estado de resultados previsional, los gastos financieros (intereses) que se registran son:", "options": ["Los intereses efectivamente pagados en el ejercicio", "Los intereses devengados en el ejercicio, se hayan pagado o no", "Cero, porque los intereses no afectan al resultado", "Solo los intereses del ultimo trimestre"], "correct": 1, "exp": "El estado de resultados usa el criterio de devengo: registra todos los intereses generados en el ejercicio, aunque una parte quede pendiente de pago para el siguiente."}, {"unit": 3, "type": "teoria", "q": "El periodo medio de maduracion de una empresa mejora (se acorta) cuando:", "options": ["Se reduce la rotacion de existencias y de cobro", "Se eleva la rotacion de todas las fases del ciclo (almacenamiento, cobro, etc.)", "Se alarga el plazo de pago a proveedores sin limite", "Se aumenta el stock en almacen indefinidamente"], "correct": 1, "exp": "A mayor rotacion (mas velocidad en cada fase: almacenaje, cobro, etc.), mas corto el periodo de maduracion y menos recursos se necesitan para financiar el ciclo."}, {"unit": 4, "type": "teoria", "q": "Segun lo comentado en clase, los criterios de gobernanza (la 'G' de ASG) incluyen aspectos como:", "options": ["La huella de carbono y el uso de energias renovables", "La retribucion de ejecutivos, la malversacion/corrupcion y la etica empresarial", "Las condiciones laborales y la diversidad", "La gestion eficiente del agua"], "correct": 1, "exp": "Los criterios de gobernanza cubren temas como retribucion de ejecutivos, corrupcion, estructura de gobierno e influencia politica/etica empresarial."}, {"unit": 2, "type": "teoria", "q": "En una poliza de credito, los intereses se pagan sobre:", "options": ["El limite total autorizado por el banco", "El saldo dispuesto (lo que realmente se ha utilizado), no sobre el limite total", "Un porcentaje fijo independiente del uso", "El saldo no utilizado"], "correct": 1, "exp": "Igual que una tarjeta de credito: si no usas el limite, no pagas intereses; los intereses se generan solo sobre el saldo dispuesto (usado).", "p": 1, "g": "financiacion"}, {"unit": 2, "type": "teoria", "q": "La diferencia clave entre el factoring 'con recurso' y 'sin recurso' es:", "options": ["El plazo de la factura", "Quien asume el riesgo si el cliente final no paga: con recurso lo asume la empresa, sin recurso lo asume el banco (y por eso es mas caro)", "El tipo de interes aplicado, que es identico en ambos casos", "Con recurso solo aplica a exportaciones"], "correct": 1, "exp": "En el factoring con recurso, si el cliente no paga, el banco puede reclamar el importe a la empresa (mas barato); sin recurso, el banco asume el riesgo de impago (mas caro para la empresa).", "p": 1, "g": "financiacion"}, {"unit": 2, "type": "teoria", "q": "El confirming es un servicio que permite:", "options": ["Que el cliente cobre antes a sus propios clientes", "Que el banco del cliente pague a los proveedores de este de forma anticipada, mientras el cliente sigue pagando al banco en el plazo original pactado con el proveedor", "Anticipar cobros de exportacion en moneda extranjera", "Emitir pagares a corto plazo"], "correct": 1, "exp": "El confirming lo ofrece el banco del cliente (comprador): paga a los proveedores por adelantado y el cliente le devuelve el dinero al banco en el plazo que tenia pactado con su proveedor.", "p": 1, "g": "financiacion"}, {"unit": 2, "type": "teoria", "q": "Un pagare de empresa y un bono corporativo se diferencian principalmente en:", "options": ["El pagare es renta variable y el bono renta fija", "El plazo: el pagare es un instrumento de renta fija a corto plazo, el bono es a largo plazo", "El bono siempre lo emite el Estado y el pagare una empresa privada", "No hay diferencia, son el mismo instrumento"], "correct": 1, "exp": "Ambos son instrumentos de renta fija (deuda), pero el pagare es a corto plazo (hasta ~2 anios) y el bono es a largo plazo (varios anios).", "p": 1, "g": "financiacion"}, {"unit": 2, "type": "teoria", "q": "El crowdlending, tal como se explico en clase, consiste en:", "options": ["Un banco que adelanta el cobro de facturas", "Una plataforma online donde varios inversores particulares financian un proyecto ya evaluado por analistas de riesgo de la plataforma", "Un servicio exclusivo para operaciones de comercio exterior", "Un tipo de prestamo bancario tradicional a largo plazo"], "correct": 1, "exp": "El crowdlending funciona mediante plataformas de internet: se sube el proyecto, un analista de riesgo lo evalua, y si se publica, distintos inversores particulares aportan fondos hasta cubrir (o no) el monto solicitado.", "p": 1, "g": "financiacion"}, {"unit": 2, "type": "teoria", "q": "En el RBS (revenue-based financing) descrito en clase, la devolucion del dinero se hace:", "options": ["En cuotas fijas mensuales durante un plazo determinado", "A razon de un porcentaje fijo sobre los ingresos futuros que vaya generando el proyecto, sin plazo de devolucion fijo", "Solo si el proyecto genera perdidas", "Mediante la emision de acciones nuevas"], "correct": 1, "exp": "En el RBS, los inversores adelantan fondos a cambio de un % fijo de los ingresos futuros: cuanto mas factura la empresa, mas rapido devuelve el dinero; no hay un plazo fijo pactado.", "p": 1, "g": "financiacion"}, {"unit": 3, "type": "teoria", "q": "Un fondo de maniobra negativo (pasivo corriente mayor que activo corriente):", "options": ["Siempre indica un problema grave de liquidez, sin excepcion", "Puede no ser un problema en sectores donde se cobra al contado pero se recibe financiacion de proveedores a 30-60 dias, como los supermercados", "Solo puede darse en empresas en quiebra", "Es matematicamente imposible"], "correct": 1, "exp": "El ejemplo clasico son los supermercados: cobran al contado a sus clientes pero sus proveedores les financian a 30-60 dias, por lo que el pasivo corriente supera al activo corriente sin que eso sea negativo.", "p": 1, "g": "maniobra"}, {"unit": 4, "type": "calculo", "q": "Segun el modelo CAPM, si la tasa libre de riesgo es 3%, la prima de riesgo de mercado es 6% y la beta apalancada del negocio es 1,4, la rentabilidad exigida por los accionistas (Re) es:", "options": ["9%", "11,4%", "6%", "8,4%"], "correct": 1, "exp": "CAPM: Re = Rf + beta x PR = 0,03 + 1,4 x 0,06 = 0,114 = 11,4%."}, {"unit": 4, "type": "teoria", "q": "El modelo CAPM se utiliza en la valoracion de proyectos para:", "options": ["Calcular el impuesto sobre sociedades", "Estimar el coste del capital propio (Re) quee luego se usa dentro de la formula del WACC, en vez de fijarlo de forma arbitraria", "Calcular directamente el VAN sin necesidad de descontar flujos", "Determinar el precio de venta de un producto"], "correct": 1, "exp": "El CAPM (Rf + beta x prima de riesgo) permite calcular de forma mas rigurosa la tasa que exigen los accionistas (Re), en vez de ponerla arbitrariamente como se hacia al principio del curso."}, {"unit": 4, "type": "calculo", "q": "Si el enunciado dice que la deuda de una empresa es el doble de sus recursos propios (D/E = 2), ¿que porcentaje del total de recursos representan los recursos propios (E)?", "options": ["50%", "66,7%", "33,3%", "25%"], "correct": 2, "exp": "Si D = 2E, el total (D+E) se reparte en 3 partes iguales: E representa 1/3 = 33,3% del total y D representa 2/3 = 66,7%."}, {"unit": 4, "type": "teoria", "q": "Para llegar al valor final de un negocio (no solo el valor de sus flujos futuros operativos) por el metodo de flujos descontados, hay que:", "options": ["Quedarse unicamente con la suma de los flujos descontados, sin ajustes adicionales", "Sumar el valor de mercado de los activos no afectos al negocio y restar la deuda a largo plazo", "Multiplicar el VAN por la tasa de impuestos", "Dividir el VAN entre el numero de anios proyectados"], "correct": 1, "exp": "El valor final del negocio = valor presente de los flujos futuros (incluyendo el valor residual) + activos no afectos al negocio a valor de mercado - deuda a largo plazo ('lo que tengo menos lo que debo')."}, {"unit": 4, "type": "teoria", "q": "En el ejemplo de campaña de marketing digital visto en clase, el CTR (click-through rate) se calcula como:", "options": ["Coste total de la campaña dividido entre el numero de clics", "Numero de clics dividido entre el numero de impresiones (veces que se vio el anuncio)", "Numero de conversiones dividido entre el numero de clics", "Duracion media de la visita dividido entre el numero de paginas vistas"], "correct": 1, "exp": "CTR = clics / impresiones. En el ejemplo de clase: 9.362 clics sobre ~2.975.000 impresiones daba un CTR de 0,31%."}, {"unit": 4, "type": "teoria", "q": "En la perspectiva de procesos internos del CMI, un ejemplo de indicador relacionado con los criterios ASG mencionado en clase es:", "options": ["El numero de clics en una campania de marketing", "Las emisiones de CO2 directas de la actividad productiva", "El ratio de liquidez general", "La rentabilidad financiera (ROE)"], "correct": 1, "exp": "Las emisiones de CO2 directas son un ejemplo tipico de indicador ASG (ambiental) dentro de la perspectiva de procesos internos.", "p": 1, "g": "cmi"}, {"unit": 5, "type": "teoria", "q": "En la ultima clase de repaso, el profesor senalo especificamente repasar, ademas del CMI, un modelo estrategico que no se explico en clase. ¿Cual es?", "options": ["El analisis DAFO", "Las 5 fuerzas de Porter", "El modelo PESTEL", "La matriz BCG"], "correct": 1, "exp": "El profesor menciono explicitamente en el repaso final: 'echenle un repaso a las 5 fuerzas de Porter', reconociendo que no se habia cubierto en clase pero podia entrar en el examen."}, {"unit": 5, "type": "teoria", "q": "Según el comunicado oficial del profesor, el examen de convocatoria ordinaria consta de:", "options": ["20 preguntas tipo test de 4 opciones; cada correcta suma 0,50 y las incorrectas no restan", "10 preguntas de desarrollo de 1 punto cada una", "20 preguntas tipo test; cada incorrecta resta 0,25", "50 preguntas tipo test de 3 opciones, sin penalización"], "correct": 0, "exp": "Son 20 preguntas tipo test (10 puntos), 60 minutos. Correcta = 0,50; incorrecta no resta; sin contestar no puntúa ni resta. Hace falta ≥ 4,5/10 para que haga media (9 aciertos)."}, {"unit": 5, "type": "teoria", "q": "Para el examen, segun lo aclarado en la clase de repaso, se necesita:", "options": ["Una calculadora cientifica basica es suficiente para todo", "Una calculadora financiera o Excel, ya que una calculadora cientifica normal no permite calcular VAN o TIR", "No se permite ningun tipo de calculadora", "Solo se permite el uso de papel y lapiz"], "correct": 1, "exp": "El profesor aclaro que para calcular el VAN o la TIR hace falta una calculadora financiera o Excel; una calculadora cientifica estandar no tiene esas funciones financieras."}, {"unit": 6, "type": "teoria", "q": "¿Cuál de las siguientes NO es una de las cinco fuerzas de Porter?", "options": ["Poder de negociación de los proveedores", "Poder de negociación de los clientes", "Existencia de productos sustitutivos", "Nivel de inflación del país"], "correct": 3, "exp": "Las cinco fuerzas son: poder de proveedores, poder de clientes, competidores actuales, entrada de nuevos competidores y productos sustitutivos. La inflación sería un factor económico del PESTEL.", "p": 1, "g": "porter"}, {"unit": 6, "type": "teoria", "q": "Según el manual, para una empresa que produce café, el agua es un producto sustitutivo porque:", "options": ["Tiene un precio similar", "Se produce con el mismo proceso", "Ambos satisfacen la necesidad de hidratación", "Pertenece a la misma marca"], "correct": 2, "exp": "Un sustitutivo satisface la misma necesidad desde otra perspectiva; café y agua cubren la necesidad de hidratación.", "p": 1, "g": "porter"}, {"unit": 6, "type": "teoria", "q": "En las cinco fuerzas de Porter, cuanto mayor es el poder de negociación de proveedores o clientes:", "options": ["Menor es el riesgo de la empresa", "Mayor es la susceptibilidad de la empresa a sus decisiones (calidad, precio, plazo de entrega)", "Mayores son las barreras de entrada", "Mejor es la posición competitiva de la empresa"], "correct": 1, "exp": "Un agente con más poder puede imponer condiciones, por lo que la empresa depende más de sus decisiones.", "p": 1, "g": "porter"}, {"unit": 6, "type": "teoria", "q": "El análisis PESTEL evalúa factores:", "options": ["Productivos, Estratégicos, Sociales, Técnicos, Económicos y Logísticos", "Políticos, Económicos, Sociales, Tecnológicos, Medioambientales y Legales", "Personales, Estructurales, Temporales, Éticos y Legales", "Políticos, Éticos, Sociales, Tributarios, Educativos y Laborales"], "correct": 1, "exp": "PESTEL = Políticos, Económicos, Sociales, Tecnológicos, Medioambientales y Legales (entorno general)."}, {"unit": 6, "type": "teoria", "q": "Para valorar el impacto (negativo, neutro o positivo) de cada variable del PESTEL, el manual recomienda usar:", "options": ["El VAN", "Una escala Likert", "La matriz BCG", "El ratio de liquidez"], "correct": 1, "exp": "Se recomienda una escala Likert (1 a 5) para aproximar el impacto de cada factor."}, {"unit": 6, "type": "teoria", "q": "¿Cuál es el orden correcto de las fases del ciclo de vida de la industria?", "options": ["Crecimiento, start-up, madurez, shake-out, declive", "Start-up, shake-out, crecimiento, madurez, declive", "Start-up, crecimiento, shake-out, madurez, declive", "Start-up, crecimiento, madurez, shake-out, declive"], "correct": 2, "exp": "Start-up → Crecimiento → Shake-out → Madurez → Declive."}, {"unit": 6, "type": "teoria", "q": "En la fase de shake-out del ciclo de vida de la industria:", "options": ["Se obtienen los mayores beneficios de toda la industria", "Las empresas consolidadas siguen obteniendo retorno y las que no se ajustan a los clientes salen o se especializan en un nicho", "Solo permanecen las empresas con vínculo con otros productos", "Las primeras organizaciones desarrollan prototipos con flujo de caja negativo"], "correct": 1, "exp": "El shake-out es un punto de inflexión: sobreviven las empresas con posicionamiento consolidado; el resto abandona o se especializa en un nicho."}, {"unit": 6, "type": "teoria", "q": "¿En qué fase del ciclo de vida de la industria se suelen obtener los mayores beneficios?", "options": ["Start-up", "Crecimiento", "Madurez", "Declive"], "correct": 2, "exp": "En la madurez se consolida el retorno de la inversión y se suelen obtener los mayores beneficios."}, {"unit": 6, "type": "teoria", "q": "En la fase start-up de una industria (por ejemplo, los coches sin conductor), el flujo de caja suele ser:", "options": ["Positivo y creciente", "Negativo, por la gran inversión", "Igual al beneficio", "Máximo de todo el ciclo"], "correct": 1, "exp": "En start-up hay pocas empresas, prototipos y mucha inversión, por lo que el flujo de caja es negativo."}, {"unit": 6, "type": "teoria", "q": "En la matriz General Electric & McKinsey, los ejes son:", "options": ["Cuota de mercado (X) y crecimiento del mercado (Y)", "Posición competitiva (X) y atractivo del mercado o industria (Y)", "Coste (X) y diferenciación (Y)", "Rentabilidad (X) y riesgo (Y)"], "correct": 1, "exp": "Es una matriz de nueve posiciones: posición competitiva (fuerte, media, débil) frente a atractivo de la industria (alto, medio, bajo)."}, {"unit": 6, "type": "teoria", "q": "En la matriz GE-McKinsey, un producto con atractivo de mercado alto y posición competitiva fuerte se sitúa en la zona en la que conviene:", "options": ["Dejar de producirlo", "Dedicarle recursos mínimos", "Seguir invirtiendo para potenciarlo", "Venderlo inmediatamente"], "correct": 2, "exp": "Es la zona de inversión: la empresa tiene una ventaja clara y conviene seguir potenciando esos productos o servicios."}, {"unit": 6, "type": "teoria", "q": "Según el manual, ¿cuál de los siguientes es un recurso intangible de una organización?", "options": ["Maquinaria", "Patentes", "Tecnologías", "Dinero en caja"], "correct": 1, "exp": "Los recursos intangibles incluyen marcas registradas, patentes y licencias; tecnologías y maquinaria se citan como tangibles."}, {"unit": 6, "type": "teoria", "q": "¿Cuál de las siguientes NO es una actividad primaria de la cadena de valor?", "options": ["Logística interna", "Marketing y ventas", "Servicios posventa", "Gestión de recursos humanos"], "correct": 3, "exp": "La gestión de recursos humanos es una actividad secundaria o de apoyo, junto con el desarrollo tecnológico, el aprovisionamiento y la infraestructura."}, {"unit": 6, "type": "teoria", "q": "En la cadena de valor, el 'liderazgo en costes' como fuente de ventaja competitiva implica:", "options": ["Ofrecer características únicas y distintas del resto", "Tener una organización interna que permita ofrecer el producto al menor precio", "Dirigirse a un segmento muy concreto de consumidores", "Invertir más en marketing que los competidores"], "correct": 1, "exp": "Las ventajas pueden venir de la diferenciación, del liderazgo en costes (menor precio) o del enfoque/segmentación."}, {"unit": 6, "type": "teoria", "q": "En la matriz DAFO, los elementos internos de la empresa son:", "options": ["Oportunidades y amenazas", "Fortalezas y debilidades", "Amenazas y debilidades", "Fortalezas y oportunidades"], "correct": 1, "exp": "Fortalezas y debilidades son internas; oportunidades y amenazas provienen del entorno."}, {"unit": 7, "type": "teoria", "q": "En Excel, para calcular la TIR de un proyecto, ¿cómo se introducen los valores?", "options": ["Solo los flujos positivos, sin la inversión", "La inversión inicial en negativo seguida de los flujos de cada periodo", "Solo el último flujo del proyecto", "La tasa de descuento seguida de los flujos"], "correct": 1, "exp": "=TIR(valores): el rango incluye la inversión inicial con signo negativo y los flujos posteriores.", "p": 1, "g": "van_tir"}, {"unit": 7, "type": "calculo", "q": "La TIR de un proyecto con flujos −10.000; 2.000; 3.000; 4.000; 5.000 es aproximadamente:", "options": ["8,50%", "10,00%", "12,83%", "15,20%"], "correct": 2, "exp": "=TIR(−10000;2000;3000;4000;5000) = 12,83%. Al 12% el VAN es +202 y al 13% es −41,85.", "p": 1, "g": "van_tir"}, {"unit": 7, "type": "teoria", "q": "La fórmula =ALEATORIO.ENTRE(80;120) genera:", "options": ["Siempre el valor 100", "Un número aleatorio entre 80 y 120", "Un decimal entre 0 y 1", "La media de 80 y 120"], "correct": 1, "exp": "ALEATORIO.ENTRE(inferior;superior) devuelve un valor aleatorio entre los dos límites; es la base de la simulación Monte Carlo en Excel."}, {"unit": 7, "type": "teoria", "q": "En una simulación Monte Carlo en Excel, la tecla F9 sirve para:", "options": ["Guardar el archivo", "Recalcular y generar nuevos valores aleatorios", "Calcular la TIR", "Crear un gráfico"], "correct": 1, "exp": "F9 recalcula la hoja, por lo que las celdas con ALEATORIO cambian de valor en cada pulsación."}, {"unit": 7, "type": "teoria", "q": "Para resumir los resultados de las simulaciones (media, mínimo, máximo) el profesor usó en Excel:", "options": ["Datos → Análisis de datos → Estadística descriptiva", "Fórmulas → Financieras → TIR", "Insertar → Tabla dinámica solamente", "Revisar → Control de cambios"], "correct": 0, "exp": "Es un complemento (Herramientas para análisis) que se activa en Archivo → Opciones → Complementos."}, {"unit": 7, "type": "teoria", "q": "Con la función =VNA(tasa; F1:F5), donde F0 es la inversión inicial negativa, el VAN del proyecto es:", "options": ["=VNA(tasa; F1:F5)", "=VNA(tasa; F1:F5)+F0", "=VNA(tasa; F0:F5)", "=VNA(tasa; F1:F5)-F0"], "correct": 1, "exp": "VNA descuenta el primer valor un periodo, así que la inversión del año 0 se suma aparte (con su signo negativo).", "p": 1, "g": "van_tir"}, {"unit": 7, "type": "calculo", "q": "Un proyecto tiene flujos −100.000; 50.000; 50.000; 30.000; 20.000; 10.000. Al 18% su VAN es +11.227,90. ¿Qué se deduce de la TIR?", "options": ["Es menor que el 18%", "Es exactamente el 18%", "Es mayor que el 18% (en este caso, 24,27%)", "No se puede calcular"], "correct": 2, "exp": "La TIR es la tasa que hace el VAN igual a cero. Si al 18% el VAN sigue siendo positivo, la TIR es mayor que 18%.", "p": 1, "g": "van_tir"}, {"unit": 7, "type": "calculo", "q": "¿Qué resultado da =1000*(1+5%)^(18/12)?", "options": ["1.075,93", "1.075,00", "1.050,00", "1.157,63"], "correct": 0, "exp": "Interés compuesto a 18 meses con tasa anual: 1.000 × 1,05^1,5 = 1.075,93."}, {"unit": 7, "type": "calculo", "q": "Un pagaré de 1.000 € vence en 6 meses y se descuenta hoy con un descuento simple del 5% anual. ¿Cuánto se cobra hoy?", "options": ["950", "975", "1.000", "1.025"], "correct": 1, "exp": "Descuento = 1.000 × 5% × 6/12 = 25; valor actual = 1.000 − 25 = 975.", "p": 1, "g": "financiacion"}, {"unit": 7, "type": "calculo", "q": "Con costes fijos de 2.000 €, precio de venta unitario de 50 € y coste variable unitario de 30 €, ¿cuántas unidades hay que vender para el punto de equilibrio?", "options": ["40", "66", "100", "200"], "correct": 2, "exp": "Punto de equilibrio en unidades = CF / (PV − CV) = 2.000 / 20 = 100 unidades (5.000 € de facturación)."}, {"unit": 7, "type": "calculo", "q": "Si el periodo medio de maduración económica es de 68,46 días y el periodo medio de pago de 55,3 días, el ciclo de caja es aproximadamente:", "options": ["123,76 días", "13,16 días", "55,3 días", "68,46 días"], "correct": 1, "exp": "Ciclo de caja (maduración financiera) = maduración económica − periodo de pago = 68,46 − 55,3 = 13,16 días.", "p": 1, "g": "maniobra"}, {"unit": 7, "type": "calculo", "q": "Con un coste medio de mercancías vendidas de 50.000 € y existencias medias de 9.000 €, la rotación de mercancías es aproximadamente:", "options": ["0,18", "4,50", "5,56", "6,50"], "correct": 2, "exp": "Rotación = CMV / existencias medias = 50.000 / 9.000 = 5,56 veces al año (periodo de almacenamiento: 365 / 5,56 = 65,7 días)."}, {"unit": 6, "type": "teoria", "q": "Según el manual, la misión de una organización es:", "options": ["La aspiración a la que quiere llegar a largo plazo", "Su razón de ser: el propósito para el que fue creada", "El conjunto de metas a corto plazo", "El presupuesto aprobado para la estrategia"], "correct": 1, "exp": "Misión = razón de ser. La visión es la aspiración (a dónde quisiera llegar) y las metas cuantifican a corto y medio plazo los pasos para alcanzarla."}, {"unit": 6, "type": "teoria", "q": "La visión de una organización es:", "options": ["Una proyección a largo plazo y una aspiración ambiciosa", "El detalle de los gastos del próximo año", "El análisis del entorno general", "Una lista de KPI financieros"], "correct": 0, "exp": "La visión es a dónde quiere llegar la entidad: una proyección a largo plazo y una aspiración ambiciosa."}, {"unit": 6, "type": "teoria", "q": "Según el manual, todas las entidades utilizan para fijar sus objetivos a corto plazo un horizonte de:", "options": ["3 meses", "12 meses", "3 años", "5 a 7 años"], "correct": 1, "exp": "El corto plazo es siempre de 12 meses porque permite metas más realistas. El largo plazo varía: algunas organizaciones lo miran a 5-7 años y otras a 3."}, {"unit": 6, "type": "teoria", "q": "Los tres tipos de escenarios que se plantean en la planificación estratégica son:", "options": ["Realista o neutro, optimista o positivo, y pesimista o negativo", "Corto, medio y largo plazo", "Financiero, operativo y estratégico", "Interno, externo y mixto"], "correct": 0, "exp": "El manual los presenta como escenario realista o neutro, optimista o positivo y pesimista o negativo."}, {"unit": 6, "type": "teoria", "q": "¿Qué documentos previsionales incluye, en líneas generales, la planificación financiera?", "options": ["Solo el balance de cierre del ejercicio anterior", "Flujo de caja, cuenta de resultados previsional y balance previsional", "Solo la cuenta de resultados histórica", "Únicamente el cuadro de mando integral"], "correct": 1, "exp": "Flujo de caja, cuenta de resultados previsional y balance previsional al final de cada año; algunas organizaciones añaden el estado de origen y aplicación de fondos."}, {"unit": 6, "type": "teoria", "q": "En el ciclo de la decisión estratégica, la fase que sigue a la implementación de la estrategia es:", "options": ["Análisis estratégico", "Determinación de objetivos", "Monitoreo y control", "Misión y visión"], "correct": 2, "exp": "Orden: misión y visión → objetivos → análisis estratégico → planificación estratégica → implementación → monitoreo y control → identificación de elementos en conflicto con la estrategia."}, {"unit": 6, "type": "teoria", "q": "Según el manual, ¿para qué entorno se usan las cinco fuerzas de Porter, el ciclo de vida de la industria y la matriz General Electric?", "options": ["Entorno general", "Entorno específico", "Entorno interno", "Entorno financiero"], "correct": 1, "exp": "El PESTEL es la herramienta del entorno general; Porter, ciclo de vida y matriz GE se aplican al entorno específico (la industria o actividad económica).", "p": 1, "g": "porter"}, {"unit": 6, "type": "teoria", "q": "El entorno general, dentro del análisis estratégico, comprende:", "options": ["Los factores que afectan a todas las organizaciones de ese contexto geográfico", "Solo a los competidores directos", "Los recursos y capacidades internos", "Las ventas del último año"], "correct": 0, "exp": "El entorno general recoge factores que afectan a todas las organizaciones del contexto; el específico, los que impactan directamente a las de una misma industria."}, {"unit": 6, "type": "teoria", "q": "¿En qué momento del proceso se enmarca la presupuestación, según el manual?", "options": ["Después de la implementación, para revisar resultados", "Al inicio de la planificación estratégica, tras el análisis estratégico", "Antes de definir la misión y la visión", "Solo al final del ciclo, en el monitoreo"], "correct": 1, "exp": "La presupuestación se enmarca al inicio de la planificación estratégica, una vez hecho el análisis estratégico."}, {"unit": 6, "type": "teoria", "q": "Una de las utilidades de la presupuestación a corto plazo es:", "options": ["Eliminar la necesidad de monitoreo", "Identificar necesidades de financiación para evitar un flujo de caja negativo que perjudique la estrategia", "Fijar la misión de la empresa", "Calcular el WACC"], "correct": 1, "exp": "Una estrategia suele exigir un gasto alto al inicio; el presupuesto permite anticipar la financiación necesaria a corto plazo."}, {"unit": 6, "type": "teoria", "q": "Si en el monitoreo se detecta que la desviación se debe a cambios en el entorno, lo que hay que hacer es:", "options": ["Ignorarla, porque el entorno no se puede controlar", "Volver al análisis estratégico y rediseñar la estrategia, incluso cambiándola por completo", "Reducir solo el presupuesto", "Cambiar únicamente los KPI"], "correct": 1, "exp": "Hay que volver al análisis estratégico, reevaluar misión, visión y entorno, y generar nuevas alternativas y objetivos realistas."}, {"unit": 6, "type": "teoria", "q": "Según el manual, los objetivos SMART son los que son:", "options": ["Específicos, medibles, alcanzables, realistas y con horizonte temporal definido", "Simples, modernos, ambiciosos, rentables y transparentes", "Solo cuantitativos y a corto plazo", "Financieros, operativos y estratégicos"], "correct": 0, "exp": "SMART: specific, measurable, achievable, realistic y time-bound (con horizonte temporal)."}, {"unit": 6, "type": "teoria", "q": "En el cuadro de mando integral, ¿qué perspectivas se consideran 'resultados externos'?", "options": ["Financiera y cliente", "Procesos internos y aprendizaje y crecimiento", "Financiera y procesos internos", "Cliente y aprendizaje y crecimiento"], "correct": 0, "exp": "Según el esquema del manual, financiera y cliente son resultados externos; procesos internos y aprendizaje y crecimiento son resultados internos.", "p": 1, "g": "cmi"}, {"unit": 6, "type": "teoria", "q": "Un cuadro de mando integral de tipo 'estratégico', según el manual:", "options": ["Incluye solo variables financieras", "Incluye las cuatro áreas (finanzas, clientes, procesos internos, aprendizaje y crecimiento) con KPI SMART", "Se centra solo en el proceso productivo", "No incluye KPI"], "correct": 1, "exp": "El financiero solo mide variables financieras, el operativo se centra en el proceso productivo y el estratégico integra las cuatro perspectivas.", "p": 1, "g": "cmi"}, {"unit": 6, "type": "teoria", "q": "La tabla básica de un cuadro de mando integral del manual tiene como columnas:", "options": ["Perspectiva, KPI, deadline, descripción, objetivo y valor actual", "Activo, pasivo y patrimonio neto", "Ingresos, gastos y beneficio", "VAN, TIR y payback"], "correct": 0, "exp": "Las columnas son perspectiva, KPI, deadline (fecha límite), descripción, objetivo y valor actual.", "p": 1, "g": "cmi"}, {"unit": 3, "type": "teoria", "q": "Un daño consecuencial (o indirecto) es:", "options": ["El que sufre directamente el bien asegurado", "El que se produce solo por desgaste natural", "El que se ocasiona indirectamente por un siniestro previo, como el lucro cesante del taxista mientras su coche está en el taller", "El que cubre siempre un seguro de vida"], "correct": 2, "exp": "En el ejemplo de clase, el daño directo es el vehículo estropeado y el consecuencial es el dinero que el taxista deja de ganar mientras se repara."}, {"unit": 3, "type": "teoria", "q": "El riesgo de responsabilidad civil se da cuando:", "options": ["Se pierde un bien propio por incendio", "Una persona causa, directa o indirectamente, un perjuicio a bienes de terceros por una conducta negligente o culposa", "Cae el precio de las materias primas", "Un trabajador se accidenta yendo al trabajo"], "correct": 1, "exp": "Ejemplos de seguros: coche a terceros, RC inmobiliaria o RC profesional (médicos y profesionales que pueden dañar a clientes)."}, {"unit": 3, "type": "teoria", "q": "El escándalo de las emisiones de Volkswagen se presentó en clase como un ejemplo de riesgo:", "options": ["Reputacional", "Laboral", "Personal", "Patrimonial"], "correct": 0, "exp": "Además de la multa, la imagen de la compañía quedó dañada ante la sociedad: es un riesgo reputacional."}, {"unit": 3, "type": "teoria", "q": "Según la clase, los riesgos laborales incluyen:", "options": ["Solo los despidos", "Incendios, contactos eléctricos, caídas e incluso el desplazamiento de ida y vuelta al trabajo", "Únicamente las pérdidas de ingresos", "Los cambios de tipo de cambio"], "correct": 1, "exp": "El desplazamiento hacia y desde el trabajo también se considera riesgo laboral."}, {"unit": 3, "type": "teoria", "q": "El riesgo país se compone de:", "options": ["Riesgo operacional, laboral y reputacional", "Riesgo soberano, de transferencia, de entorno macroeconómico y regulatorio", "Riesgo de mercado, de liquidez y de capital", "Riesgo patrimonial y de responsabilidad civil"], "correct": 1, "exp": "Soberano (capacidad de pago del Estado), transferencia (falta de divisas), entorno macro (factores exógenos) y regulatorio (cambios de normas)."}, {"unit": 3, "type": "calculo", "q": "Si el bono español a 10 años rinde un 3% y el bono alemán (país libre de riesgo en Europa) un 1%, la prima de riesgo de España es:", "options": ["1%", "2%", "3%", "4%"], "correct": 1, "exp": "Prima de riesgo = rentabilidad del bono del país − rentabilidad del bono libre de riesgo = 3% − 1% = 2%."}, {"unit": 3, "type": "teoria", "q": "Según la relación rentabilidad-riesgo vista en clase, los bonos de un país con más riesgo suelen ofrecer:", "options": ["Menor rentabilidad que los del país libre de riesgo", "Igual rentabilidad", "Mayor rentabilidad, como premio por asumir más riesgo", "Ninguna rentabilidad"], "correct": 2, "exp": "Quien asume más riesgo espera un premio mayor; por eso el bono del país libre de riesgo es el que menos rentabilidad paga."}, {"unit": 3, "type": "calculo", "q": "Un proyecto tiene tres escenarios con VAN de 60.000 (probabilidad 15%), 30.000 (70%) y −20.000 (15%). ¿Cuál es su VAN esperado?", "options": ["23.333", "27.000", "30.000", "70.000"], "correct": 1, "exp": "VAN esperado = 60.000×0,15 + 30.000×0,70 − 20.000×0,15 = 9.000 + 21.000 − 3.000 = 27.000.", "p": 1, "g": "van_tir"}, {"unit": 3, "type": "teoria", "q": "Para obtener la TIR del proyecto global a partir de varios escenarios con probabilidades:", "options": ["Se multiplica la TIR de cada escenario por su probabilidad y se suman", "Se ponderan los flujos de cada escenario (incluida la inversión) por su probabilidad y se calcula la TIR de ese flujo global", "Se promedian las probabilidades", "Se usa solo la TIR del escenario más probable"], "correct": 1, "exp": "Con el VAN sí vale ponderar el resultado; con la TIR no. Hay que construir el flujo global ponderado y calcular su TIR.", "p": 1, "g": "van_tir"}, {"unit": 3, "type": "teoria", "q": "Al estresar un proyecto probando tasas de descuento, la tasa máxima a la que el proyecto sigue siendo rentable es:", "options": ["La tasa libre de riesgo", "La TIR (donde el VAN es cero)", "El WACC más 10 puntos", "El 100%"], "correct": 1, "exp": "A la TIR el VAN es cero (VAN neutro); con una tasa mayor el VAN pasa a ser negativo."}, {"unit": 6, "type": "teoria", "q": "Las tres variables macro que condicionaban el plan estratégico de Iberia eran:", "options": ["Inflación, tipo de cambio y precio del combustible", "Tipo de interés, desempleo y PIB", "Precio del billete, número de aviones y salarios", "Inflación, tipos de interés y bolsa"], "correct": 0, "exp": "Según el caso del manual: inflación, tipo de cambio (sobre todo dólar-euro) y precio del combustible."}, {"unit": 6, "type": "teoria", "q": "En el caso Iberia, el principal coste operativo, de más del 60% y muy variable, era:", "options": ["Los salarios", "El combustible", "El mantenimiento", "El alquiler de aeropuertos"], "correct": 1, "exp": "El combustible variaba, por ejemplo, entre 80 € y 130 € el barril en cuatro años."}, {"unit": 6, "type": "teoria", "q": "Un business plan 'bottom-up', según el caso Iberia:", "options": ["Parte de la formulación estratégica desde la dirección, sin cifras", "Parte de una empresa en funcionamiento y proyecta sus cuentas anuales en función de variables macro", "Se hace sin tener en cuenta las áreas", "Solo se aplica a empresas nuevas"], "correct": 1, "exp": "El top-down parte del análisis y la formulación estratégica; el bottom-up parte de las cuentas anuales existentes y las proyecta. Es más financiero y menos estratégico."}, {"unit": 6, "type": "teoria", "q": "En Iberia, cada iniciativa de un director de área se resumía en una ficha que incluía:", "options": ["Solo el coste de la iniciativa", "Qué se va a hacer, cómo, quién es el sponsor y qué impacto tiene en cada KPI", "El organigrama de la compañía", "El balance del último año"], "correct": 1, "exp": "La ficha permite trasladar una visión estratégica a una visión numérica por áreas."}, {"unit": 6, "type": "teoria", "q": "En el caso Iberia, la aproximación para construir el plan era:", "options": ["Solo top-down", "Solo bottom-up", "Mixta: la dirección fija las metas (KPI) y cada área decide cómo alcanzarlas, validándose después en conjunto", "Cada área trabajaba de forma independiente sin validación"], "correct": 2, "exp": "Tiene que haber correlación entre áreas: no puede subir el número de aviones y que mantenimiento gaste menos."}, {"unit": 6, "type": "teoria", "q": "Según el profesor, la misión de una organización responde a:", "options": ["Dónde quiere llegar en 10 años", "Quiénes somos y para qué fue creada: su identidad y razón de ser", "Cuánto beneficio quiere obtener este año", "Cuál es su presupuesto de inversión"], "correct": 1, "exp": "La misión es la identidad de la organización: su propósito, a qué clientes y mercado se dirige y qué necesidades satisface. La visión es la aspiración."}, {"unit": 6, "type": "teoria", "q": "¿Cuál NO es una característica de la visión según la clase?", "options": ["Incorpora retos ambiciosos pero alcanzables", "Es estable a lo largo del tiempo", "Cambia cada trimestre según el mercado", "Compromete y motiva a las personas de la organización"], "correct": 2, "exp": "La visión debe mantenerse en el tiempo aunque cambien el mercado o las personas; lo que cambia son los planes y estrategias."}, {"unit": 6, "type": "teoria", "q": "En la analogía bélica del profesor, la táctica se relaciona con ganar ___ y la estrategia con ganar ___:", "options": ["guerras / batallas", "batallas / guerras", "ligas / partidos", "presupuestos / ventas"], "correct": 1, "exp": "Las tácticas son maniobras específicas (ganar batallas o partidos); la estrategia es el plan global (ganar la guerra o la liga)."}, {"unit": 6, "type": "teoria", "q": "En los objetivos en cascada, tras fijar el objetivo global (por ejemplo, 40% de cuota de mercado), el controller de gestión:", "options": ["Pide el mismo objetivo del 40% a todos los departamentos", "Baja objetivos distintos a cada departamento, de modo que su suma lleve al objetivo final", "Elimina los objetivos departamentales", "Solo mide los resultados al final del año"], "correct": 1, "exp": "Cada departamento (logística, producción, ventas, RR. HH.) recibe su propio objetivo, alineado con el global; después aplica sus estrategias."}, {"unit": 6, "type": "teoria", "q": "¿Para qué sirve la meta asociada a un indicador?", "options": ["Para sustituir al objetivo final", "Para tener una cifra de referencia con la que saber si el valor del indicador es bueno o malo", "Para calcular el VAN", "Para fijar el presupuesto"], "correct": 1, "exp": "El indicador mide el avance; la meta es la referencia (ej. 30% de las ventas al primer trimestre) y el objetivo es el resultado final anual."}, {"unit": 6, "type": "teoria", "q": "Según los ejemplos de clase, ¿qué indicador macroeconómico se calcula con periodicidad anual?", "options": ["La cotización de una acción", "La tasa de desempleo", "El PIB", "El precio de un barril de petróleo"], "correct": 2, "exp": "La cotización es en tiempo real, el desempleo es mensual y el PIB anual: cada indicador necesita una frecuencia de medición adecuada."}, {"unit": 6, "type": "teoria", "q": "En los objetivos SMART, 'alcanzable' significa que:", "options": ["Debe tener fecha límite", "Debe poder lograrse, porque uno imposible produce frustración y desapego", "Debe estar medido en euros", "Debe ser el mismo para todos"], "correct": 1, "exp": "Un objetivo inalcanzable (por ejemplo, pedir 80.000 € a quien como máximo vende 35.000) desmotiva y puede hacer que la persona busque otras alternativas."}, {"unit": 6, "type": "teoria", "q": "Un objetivo 'realista' según el profesor es el que:", "options": ["Es coherente con los medios de los que se dispone", "Tiene una cifra exacta", "Se mide en tiempo real", "Es idéntico al del año anterior"], "correct": 0, "exp": "No tiene sentido fijar unas ventas que la capacidad productiva no puede servir."}, {"unit": 6, "type": "teoria", "q": "En la cuenta de resultados proyectada, la amortización:", "options": ["Es una salida de dinero en efectivo", "Es la pérdida de valor de un activo, reduce el beneficio y los impuestos, y no es un desembolso", "Aumenta las ventas", "Solo se aplica a los activos financieros"], "correct": 1, "exp": "Se resta para calcular el impuesto sobre un beneficio menor, pero no sale dinero de la caja, por lo que luego se suma de vuelta."}, {"unit": 6, "type": "teoria", "q": "¿Cuál NO es uno de los pilares del cuadro de mando integral según la clase?", "options": ["Las perspectivas y el mapa estratégico", "Las relaciones causa-efecto de los objetivos estratégicos", "Los indicadores con sus metas y las iniciativas estratégicas", "El balance previsional a cinco años"], "correct": 3, "exp": "El CMI se asienta en perspectivas y mapa estratégico, relaciones causa-efecto, indicadores con metas e iniciativas estratégicas.", "p": 1, "g": "cmi"}, {"unit": 6, "type": "teoria", "q": "En el mapa estratégico de ejemplo, la formación técnica del personal (aprendizaje y crecimiento) contribuye a:", "options": ["Reducir directamente el impuesto de sociedades", "Innovación en productos, que fideliza clientes y eleva los ingresos por cliente hasta mejorar el beneficio", "Aumentar la deuda", "Cerrar departamentos"], "correct": 1, "exp": "La relación causa-efecto va de abajo hacia arriba: aprendizaje y crecimiento → procesos internos → cliente → financiera."}, {"unit": 6, "type": "calculo", "q": "El indicador 'devoluciones sobre ventas' marca un 5% y la meta es estar por debajo del 0,25%. ¿Qué se concluye?", "options": ["Se cumple la meta con holgura", "Hay un problema serio de calidad: está muy por encima de la meta", "No se puede concluir nada", "La meta está mal fijada"], "correct": 1, "exp": "El indicador solo es útil comparado con su meta; aquí se supera en 20 veces el máximo aceptable."}, {"unit": 6, "type": "teoria", "q": "¿Cuáles de estas herramientas citó el profesor para elaborar un cuadro de mando integral?", "options": ["Excel, Power BI y BSC Designer", "Solo papel y lápiz", "Solo SAP", "Solo hojas de cálculo en la nube"], "correct": 0, "exp": "Mencionó Excel, Power BI (gráficos en tiempo real) y BSC Designer, gratuita y didáctica.", "p": 1, "g": "cmi"}, {"unit": 6, "type": "teoria", "q": "Las tres fases del proceso de decisión estratégica que describió el profesor son:", "options": ["Análisis, formulación e implementación", "Presupuesto, tesorería e inversión", "Misión, visión y valores", "Corto, medio y largo plazo"], "correct": 0, "exp": "Primero se analiza el entorno y la empresa, luego se formula la estrategia y por último se implementa, con seguimiento por indicadores."}, {"unit": 6, "type": "teoria", "q": "¿Cuál NO se citó como tipo de estrategia a elegir?", "options": ["Liderazgo en bajo coste", "Diferenciación", "Apuntar a un nicho de mercado", "Reducir el capital social"], "correct": 3, "exp": "Citó bajo coste, diferenciación, nicho, alianzas e integración vertical."}, {"unit": 6, "type": "teoria", "q": "Al hacer un PESTEL, el profesor advirtió que hay que:", "options": ["Describir la historia política del país", "Centrarse en los factores que puedan afectar al negocio, no en generalidades", "Usar solo factores económicos", "Evitar los factores ecológicos"], "correct": 1, "exp": "Poner que 'España es una monarquía democrática' no aporta nada; interesa cómo la situación política actual, las subvenciones o las leyes afectan al negocio."}, {"unit": 6, "type": "teoria", "q": "El caso de McDonald's en China se usó como ejemplo de factor:", "options": ["Social: tuvo que adaptar su modelo a una sociedad con otras costumbres", "Legal", "Tecnológico", "Político"], "correct": 0, "exp": "El modelo que funcionaba en Occidente no tuvo la aceptación esperada en una sociedad con otra cultura alimentaria, y tuvo que adaptar sus productos."}, {"unit": 6, "type": "teoria", "q": "En el dilema del prisionero visto en clase, si ninguno de los dos delata al otro:", "options": ["Cada uno recibe 2 años", "Cada uno recibe 10 años", "Ambos quedan libres", "Uno recibe 1 año y el otro 10"], "correct": 0, "exp": "Si uno delata y el otro no, el delator recibe 1 año y el otro 10. El ejemplo ilustra cómo se plantean escenarios cuando no se sabe qué hará el otro."}];
+
+const UNIT_NAMES = {
+  1: "Unidad 1 · Matemática financiera",
+  2: "Unidad 2 · Presupuesto y financiación",
+  3: "Unidad 3 · Evaluación de proyectos y riesgo",
+  4: "Unidad 4 · CMI, ratios y WACC",
+  5: "Repaso final · Porter y examen",
+  6: "Unidad 1 oficial · Estrategia y herramientas",
+  7: "Excel y fórmulas"
+};
+
+let selectedUnits = new Set([1,2,3,4,5,6,7]);
+let selectedCount = 20;
+let onlyPriority = true;
+let session = { questions: [], index: 0, answers: [] };
+
+function el(id) { return document.getElementById(id); }
+function show(id) {
+  ["screen-setup","screen-quiz","screen-result","screen-review"].forEach(s => {
+    el(s).classList.toggle("hidden", s !== id);
+  });
+}
+
+function loadBest() {
+  try {
+    const raw = localStorage.getItem("examSimBest");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+function saveBest(pct) {
+  try {
+    const cur = loadBest();
+    if (!cur || pct > cur.pct) {
+      localStorage.setItem("examSimBest", JSON.stringify({ pct: pct, date: new Date().toISOString() }));
+    }
+  } catch (e) {}
+}
+
+function renderSetup() {
+  const modeChips = el("mode-chips");
+  modeChips.innerHTML = "";
+  const nPrio = ALL_QUESTIONS.filter(q => q.p).length;
+  [[true, "Prioritarias (" + nPrio + ")"], [false, "Todas (" + ALL_QUESTIONS.length + ")"]].forEach(([val, label]) => {
+    const chip = document.createElement("div");
+    chip.className = "chip" + (onlyPriority === val ? " active" : "");
+    chip.textContent = label;
+    chip.onclick = () => { onlyPriority = val; renderSetup(); };
+    modeChips.appendChild(chip);
+  });
+  const unitChips = el("unit-chips");
+  unitChips.innerHTML = "";
+  [1,2,3,4,5,6,7].forEach(u => {
+    const chip = document.createElement("div");
+    chip.className = "chip" + (selectedUnits.has(u) ? " active" : "");
+    chip.textContent = "U" + u;
+    chip.title = UNIT_NAMES[u];
+    chip.onclick = () => {
+      if (selectedUnits.has(u)) { selectedUnits.delete(u); } else { selectedUnits.add(u); }
+      renderSetup();
+    };
+    unitChips.appendChild(chip);
+  });
+
+  const countChips = el("count-chips");
+  countChips.innerHTML = "";
+  [10,20,30,40].forEach(n => {
+    const chip = document.createElement("div");
+    chip.className = "chip" + (selectedCount === n ? " active" : "");
+    chip.textContent = n + " preguntas";
+    chip.onclick = () => { selectedCount = n; renderSetup(); };
+    countChips.appendChild(chip);
+  });
+
+  const best = loadBest();
+  el("best-score").textContent = best ? ("Mejor puntuación guardada: " + best.pct + "%") : "";
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+el("start-btn").onclick = () => {
+  if (selectedUnits.size === 0) {
+    el("setup-err").textContent = "Elige al menos una unidad.";
+    el("setup-err").classList.remove("hidden");
+    return;
+  }
+  el("setup-err").classList.add("hidden");
+  const pool = ALL_QUESTIONS.filter(q => selectedUnits.has(q.unit) && (!onlyPriority || q.p));
+  if (pool.length === 0) { el("setup-err").textContent = "No hay preguntas con ese filtro."; el("setup-err").classList.remove("hidden"); return; }
+  const n = Math.min(selectedCount, pool.length);
+  session = { questions: shuffle(pool).slice(0, n), index: 0, answers: [] };
+  show("screen-quiz");
+  renderQuestion();
+};
+
+function renderQuestion() {
+  const q = session.questions[session.index];
+  el("q-counter").textContent = "Pregunta " + (session.index + 1) + " de " + session.questions.length;
+  el("q-unit-label").textContent = UNIT_NAMES[q.unit];
+  el("progress-fill").style.width = ((session.index) / session.questions.length * 100) + "%";
+  el("q-text").textContent = q.q;
+  el("exp-box").classList.add("hidden");
+  el("next-btn").classList.add("hidden");
+
+  const optsWrap = el("options");
+  optsWrap.innerHTML = "";
+  q.options.forEach((opt, i) => {
+    const b = document.createElement("button");
+    b.className = "option";
+    b.textContent = opt;
+    b.onclick = () => selectAnswer(i);
+    optsWrap.appendChild(b);
+  });
+}
+
+function selectAnswer(i) {
+  const q = session.questions[session.index];
+  const buttons = el("options").querySelectorAll(".option");
+  buttons.forEach((b, idx) => {
+    b.classList.add("disabled");
+    b.onclick = null;
+    if (idx === q.correct) b.classList.add("correct");
+    else if (idx === i && i !== q.correct) b.classList.add("incorrect");
+  });
+  const isCorrect = i === q.correct;
+  session.answers.push({ q: q, chosen: i, correct: isCorrect });
+  el("exp-label").textContent = isCorrect ? "Correcto" : "Incorrecto";
+  el("exp-text").textContent = q.exp;
+  el("exp-box").classList.remove("hidden");
+  el("next-btn").classList.remove("hidden");
+}
+
+el("next-btn").onclick = () => {
+  session.index++;
+  if (session.index >= session.questions.length) {
+    finishExam();
+  } else {
+    renderQuestion();
+  }
+};
+
+function finishExam() {
+  const correct = session.answers.filter(a => a.correct).length;
+  const total = session.answers.length;
+  const pct = Math.round((correct / total) * 100);
+  saveBest(pct);
+
+  show("screen-result");
+  el("score-big").textContent = correct + " / " + total;
+  el("score-sub").textContent = pct + "% de aciertos";
+
+  const byUnit = {};
+  session.answers.forEach(a => {
+    const u = a.q.unit;
+    if (!byUnit[u]) byUnit[u] = { correct: 0, total: 0 };
+    byUnit[u].total++;
+    if (a.correct) byUnit[u].correct++;
+  });
+  const breakdown = el("unit-breakdown");
+  breakdown.innerHTML = "";
+  Object.keys(byUnit).sort().forEach(u => {
+    const d = byUnit[u];
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex; justify-content:space-between; padding:6px 0; font-size:14px; border-top:1px solid var(--border);";
+    row.innerHTML = "<span>" + UNIT_NAMES[u] + "</span><span>" + d.correct + "/" + d.total + "</span>";
+    breakdown.appendChild(row);
+  });
+}
+
+el("review-btn").onclick = () => {
+  show("screen-review");
+  const list = el("review-list");
+  list.innerHTML = "";
+  session.answers.forEach((a, idx) => {
+    const item = document.createElement("div");
+    item.className = "review-item";
+    const tagClass = a.correct ? "tag-ok" : "tag-bad";
+    const tagText = a.correct ? "Correcta" : "Incorrecta";
+    item.innerHTML =
+      "<div class='review-q'>" + (idx+1) + ". " + a.q.q + "</div>" +
+      "<div style='margin-bottom:6px;'>" +
+        "<span class='review-tag tag-unit'>" + UNIT_NAMES[a.q.unit].split(" · ")[0] + "</span>" +
+        "<span class='review-tag " + tagClass + "'>" + tagText + "</span>" +
+      "</div>" +
+      "<div style='font-size:13px; color:var(--text-secondary);'>Tu respuesta: " + a.q.options[a.chosen] + "</div>" +
+      (a.correct ? "" : "<div style='font-size:13px; color:var(--success);'>Correcta: " + a.q.options[a.q.correct] + "</div>") +
+      "<div style='font-size:13px; margin-top:6px;'>" + a.q.exp + "</div>";
+    list.appendChild(item);
+  });
+};
+
+el("back-to-result-btn").onclick = () => show("screen-result");
+
+el("retry-btn").onclick = () => {
+  show("screen-setup");
+  renderSetup();
+};
+
+renderSetup();
+show("screen-setup");
+
+const EXERCISES = [{"t": "Interés compuesto (más de 1 año)", "q": "Depositas 5.000 € al 3% anual con interés compuesto durante 3 años. ¿Cuánto tendrás al final?", "a": 5463.64, "tol": 0.5, "u": "€", "s": "VF = VA × (1+i)^t = 5.000 × 1,03³ = 5.000 × 1,092727 = <b>5.463,64 €</b>.", "x": "=5000*(1+3%)^3"}, {"t": "Interés compuesto (plazo en meses)", "q": "Un capital de 10.000 € al 6% anual con interés compuesto durante 18 meses. ¿Cuál es el valor futuro?", "a": 10913.37, "tol": 0.5, "u": "€", "s": "El exponente es el plazo dividido entre el plazo de la tasa: t = 18/12 = 1,5. VF = 10.000 × 1,06^1,5 = <b>10.913,37 €</b>.", "x": "=10000*(1+6%)^(18/12)"}, {"t": "Valor actual (descuento compuesto)", "q": "Dentro de 4 años recibirás 50.000 €. Con una tasa del 5% anual, ¿cuál es su valor actual?", "a": 41135.12, "tol": 0.5, "u": "€", "s": "VA = VF / (1+i)^t = 50.000 / 1,05⁴ = 50.000 / 1,215506 = <b>41.135,12 €</b>.", "x": "=50000/(1+5%)^4"}, {"t": "Interés simple (≤ 1 año)", "q": "Un documento de 8.000 € a 9 meses con una tasa anual del 6% e interés simple. ¿Qué interés genera?", "a": 360, "tol": 0.5, "u": "€", "s": "Interés = capital × i × t/12 = 8.000 × 6% × 9/12 = <b>360 €</b> (valor futuro: 8.360 €).", "x": "=8000*6%*9/12"}, {"t": "Descuento de un pagaré", "q": "Un pagaré de 20.000 € vence en 3 meses y se descuenta con descuento simple al 8% anual. ¿Cuánto se cobra hoy?", "a": 19600, "tol": 0.5, "u": "€", "s": "Descuento = 20.000 × 8% × 3/12 = 400 €. Valor actual = 20.000 − 400 = <b>19.600 €</b>.", "x": "=20000*(1-8%*3/12)"}, {"t": "VAN", "q": "Inversión inicial de 50.000 €. Flujos de los años 1 a 4: 15.000, 20.000, 25.000 y 18.000. Tasa de descuento del 8%. ¿Cuál es el VAN?", "a": 14112.01, "tol": 2, "u": "€", "s": "Se descuenta cada flujo: 15.000/1,08 + 20.000/1,08² + 25.000/1,08³ + 18.000/1,08⁴ = 13.888,89 + 17.146,78 + 19.845,80 + 13.230,54 = 64.112,01. VAN = 64.112,01 − 50.000 = <b>14.112,01 €</b>. Como es positivo, el proyecto crea valor.", "x": "=-50000+VNA(8%;15000;20000;25000;18000)   (la inversión va fuera de VNA)"}, {"t": "TIR", "q": "Con el mismo proyecto (−50.000; 15.000; 20.000; 25.000; 18.000), ¿cuál es la TIR? Respuesta en %.", "a": 19.53, "tol": 0.1, "u": "%", "s": "La TIR es la tasa que hace el VAN igual a cero. No se despeja a mano: en Excel da <b>19,53%</b>. Como es mayor que el 8% exigido, el proyecto es viable.", "x": "=TIR(A1:A5)   con A1 = −50000 y A2:A5 los flujos"}, {"t": "Payback (recuperación)", "q": "En el mismo proyecto, la inversión se recupera durante el año 3. Contando 2 años completos, ¿cuántos días del tercer año hacen falta?", "a": 219, "tol": 1, "u": "días", "s": "Acumulado al final del año 2: 15.000 + 20.000 = 35.000. Faltan 50.000 − 35.000 = 15.000. Año 3 aporta 25.000, así que 15.000/25.000 × 365 = <b>219 días</b> (2 años y 219 días).", "x": "=(50000-35000)/25000*365"}, {"t": "CAPM", "q": "Tasa libre de riesgo 3%, beta 1,2 y prima de riesgo de mercado 5%. ¿Cuál es el coste del capital propio Re? Respuesta en %.", "a": 9, "tol": 0.05, "u": "%", "s": "Re = Rf + beta × PR = 3% + 1,2 × 5% = <b>9%</b>.", "x": "=3%+1,2*5%"}, {"t": "WACC", "q": "Con Re = 9%, deuda al 6%, impuesto del 25% y financiación 50% recursos propios y 50% deuda. ¿Cuál es el WACC? Respuesta en %.", "a": 6.75, "tol": 0.05, "u": "%", "s": "WACC = 0,5 × 9% + 0,5 × 6% × (1 − 25%) = 4,5% + 2,25% = <b>6,75%</b>. Recuerda: el coste de la deuda se multiplica por (1 − t).", "x": "=50%*9%+50%*6%*(1-25%)"}, {"t": "Valor residual", "q": "El flujo de caja libre estabilizado a partir del año 6 es de 80.000 € anuales y el WACC es del 8%. ¿Cuál es el valor residual (en el año 5)?", "a": 1000000, "tol": 1, "u": "€", "s": "Valor residual = FCF / WACC = 80.000 / 0,08 = <b>1.000.000 €</b>.", "x": "=80000/8%"}, {"t": "Valor actual del valor residual", "q": "Ese valor residual de 1.000.000 € vive en el año 5. Con un WACC del 8%, ¿cuánto vale hoy (año 0)?", "a": 680583.2, "tol": 1, "u": "€", "s": "Se descuenta 5 años: 1.000.000 / 1,08⁵ = 1.000.000 / 1,469328 = <b>680.583,20 €</b>.", "x": "=1000000/(1+8%)^5"}, {"t": "Fondo de maniobra", "q": "Activo corriente de 120.000 € y pasivo corriente de 90.000 €. ¿Cuál es el fondo de maniobra?", "a": 30000, "tol": 1, "u": "€", "s": "Fondo de maniobra = AC − PC = 120.000 − 90.000 = <b>30.000 €</b>. Un valor positivo significa que parte del ciclo de explotación se financia con recursos permanentes.", "x": "=120000-90000"}, {"t": "Punto de equilibrio", "q": "Costes fijos de 12.000 €, precio de venta unitario de 25 € y coste variable unitario de 15 €. ¿Cuántas unidades hay que vender para no ganar ni perder?", "a": 1200, "tol": 0.5, "u": "unidades", "s": "Punto de equilibrio = CF / (PV − CV) = 12.000 / (25 − 15) = <b>1.200 unidades</b> (30.000 € de facturación: 12.000 / 0,40).", "x": "=12000/(25-15)"}, {"t": "Ciclo de caja", "q": "Periodo medio de almacenamiento de 40 días, de cobro de 30 días y de pago de 45 días. ¿Cuál es el ciclo de caja (maduración financiera)?", "a": 25, "tol": 0.5, "u": "días", "s": "Maduración económica = 40 + 30 = 70 días. Ciclo de caja = 70 − 45 = <b>25 días</b>: es el tiempo que hay que financiar con recursos propios o a corto plazo.", "x": "=(40+30)-45"}, {"t": "VAN esperado por escenarios", "q": "Tres escenarios con VAN de 80.000 € (probabilidad 20%), 40.000 € (60%) y −30.000 € (20%). ¿Cuál es el VAN esperado?", "a": 34000, "tol": 1, "u": "€", "s": "80.000 × 0,20 + 40.000 × 0,60 − 30.000 × 0,20 = 16.000 + 24.000 − 6.000 = <b>34.000 €</b>. La TIR, en cambio, no se pondera.", "x": "=SUMAPRODUCTO(A1:A3;B1:B3)"}, {"t": "Prima de riesgo país", "q": "El bono a 10 años del país X rinde un 4,2% y el del país libre de riesgo un 1,3%. ¿Cuál es la prima de riesgo? Respuesta en %.", "a": 2.9, "tol": 0.05, "u": "%", "s": "Prima de riesgo = 4,2% − 1,3% = <b>2,9%</b>.", "x": "=4,2%-1,3%"}];
+function parseNum(s) {
+  s = String(s).replace(/[€%\s]/g, "");
+  if (s === "") return NaN;
+  if (s.indexOf(",") >= 0 && s.indexOf(".") >= 0) { s = s.replace(/\./g, "").replace(",", "."); }
+  else if (s.indexOf(",") >= 0) { s = s.replace(",", "."); }
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) { s = s.replace(/\./g, ""); }
+  return parseFloat(s);
+}
+function fmtNum(n) { return n.toLocaleString("es-ES", { maximumFractionDigits: 2 }); }
+function renderExercises() {
+  const list = document.getElementById("calc-list");
+  list.innerHTML = "";
+  EXERCISES.forEach((e, i) => {
+    const card = document.createElement("div");
+    card.className = "ex-card";
+    card.innerHTML =
+      '<div class="ex-title">' + (i + 1) + '. ' + e.t + '</div>' +
+      '<p class="ex-q">' + e.q + '</p>' +
+      '<div class="ex-row"><input class="ex-input" type="text" inputmode="decimal" placeholder="Tu resultado"><span class="ex-unit">' + e.u + '</span>' +
+      '<button class="ex-btn primary">Comprobar</button><button class="ex-btn">Ver solución</button></div>' +
+      '<div class="ex-fb hidden"></div><div class="ex-sol hidden"></div>';
+    const input = card.querySelector("input");
+    const fb = card.querySelector(".ex-fb");
+    const sol = card.querySelector(".ex-sol");
+    const [btnCheck, btnSol] = card.querySelectorAll("button");
+    btnCheck.onclick = () => {
+      const v = parseNum(input.value);
+      fb.classList.remove("hidden", "ok", "bad");
+      if (isNaN(v)) { fb.classList.add("bad"); fb.textContent = "Escribe un número."; return; }
+      if (Math.abs(v - e.a) <= e.tol) { fb.classList.add("ok"); fb.textContent = "Correcto: " + fmtNum(e.a) + " " + e.u; }
+      else { fb.classList.add("bad"); fb.textContent = "No coincide. Revisa el planteamiento o mira la solución."; }
+    };
+    btnSol.onclick = () => {
+      sol.classList.toggle("hidden");
+      sol.innerHTML = e.s + '<br><br><b>En Excel:</b> <code>' + e.x + '</code>';
+    };
+    list.appendChild(card);
+  });
+}
+renderExercises();
+</script>
+</body>
+</html>
